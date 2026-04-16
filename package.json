@@ -1,0 +1,20 @@
+{
+  "name": "curio-cove-marketplace",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "A collectible trading marketplace",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "ejs": "^3.1.10",
+    "express": "^4.22.1",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

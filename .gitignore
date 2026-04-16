@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+package-lock.json
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+logs/
+*.log
+
+# Data files
+data/*.json
+!data/.gitkeep
+
+# Runtime
+dist/
+build/
+.nyc_output/
+
+# Temp files
+tmp/
+temp/
