@@ -4,7 +4,8 @@ class ItemGrid extends LitElement {
   static properties = {
     items: { type: Array },
     isLoading: { type: Boolean },
-    searchTerm: { type: String }
+    searchTerm: { type: String },
+    filteredItems: { type: Array }
   };
 
   static styles = css`
@@ -17,10 +18,22 @@ class ItemGrid extends LitElement {
       border: 1px solid #ddd;
       border-radius: 8px;
       overflow: hidden;
+      background: white;
+      cursor: pointer;
+      transition: transform 0.2s;
     }
     
     .card:hover {
       transform: scale(1.02);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .search-input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
   `; 
 
   constructor() {
@@ -28,40 +41,71 @@ class ItemGrid extends LitElement {
     this.items = [];
     this.isLoading = true;
     this.searchTerm = '';
+    this.filteredItems = [];
     this.loadItems();
   }
 
   async loadItems() {
+    this.isLoading = true;
     try {
       const response = await fetch('/api/items');
       const data = await response.json();
       this.items = data;
+      this.filteredItems = data;
     } catch (error) {
-      console.error(error);
-      
+      console.error('Error loading items:', error);
+    } finally {
+      this.isLoading = false;
     }
   }
 
   
-  searchItems() {
-    return this.items;
+  // searchItems() {
+  //   return this.items;
+  // }
+
+   handleSearch(e) {
+    const term = e.target.value.toLowerCase();
+    this.searchTerm = term;
+    this.filteredItems = this.items.filter(item => 
+      item.name.toLowerCase().includes(term) ||
+      item.description.toLowerCase().includes(term)
+    );
+  }
+
+  viewItem(itemId) {
+    this.dispatchEvent(new CustomEvent('view-item', { detail: { itemId } }));
   }
 
   render() {
+    if (this.isLoading) {
+      return html`<div class="text-center py-12">Loading treasures...</div>`;
+    }
+
     return html`
       <div>
+        <input 
+          type="text" 
+          class="search-input"
+          placeholder="🔍 Search collectibles..."
+          @input=${this.handleSearch}
+        >
         
-        <input type="text" placeholder="Search items..." class="search-input">
-        
-        ${this.isLoading ? html`<div>Loading...</div>` : html`
+        ${this.filteredItems.length === 0 ? html`
+          <div class="text-center py-12 text-gray-500">
+            No items found matching "${this.searchTerm}"
+          </div>
+        ` : html`
           <div class="grid">
-            ${this.items.map(item => html`
-              <div class="card" @click=${() => console.log(item.id)}>
+            ${this.filteredItems.map(item => html`
+              <div class="card" @click=${() => this.viewItem(item.id)}>
                 <img src="${item.image}" alt="${item.name}" style="width:100%; height:200px; object-fit:cover;">
                 <div style="padding:15px;">
-                  <h3>${item.name}</h3>
-                  <p>$${item.price}</p>
-              
+                  <h3 class="font-bold text-lg">${item.name}</h3>
+                  <p class="text-green-600 font-bold mt-2">$${item.price}</p>
+                  ${item.highestOffer ? html`
+                    <p class="text-sm text-orange-500">Highest offer: $${item.highestOffer}</p>
+                  ` : ''}
                 </div>
               </div>
             `)}
