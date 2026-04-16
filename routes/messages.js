@@ -2,6 +2,7 @@ import express from 'express';
 import { readFileSync, writeFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { v4 as uuidv4 } from 'uuid';
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -79,6 +80,46 @@ router.get('/unread/:userId', (req, res) => {
   } catch (error) {
     console.error('Error getting unread count:', error);
     res.status(500).json({ error: 'Failed to get unread count' });
+  }
+});
+
+// Send a message
+router.post('/', (req, res) => {
+  try {
+    const messages = readMessages();
+    const { itemId, senderId, senderName, content, type = 'text' } = req.body;
+    
+    const newMessage = {
+      id: uuidv4(),
+      itemId,
+      senderId,
+      senderName,
+      content,
+      type,
+      timestamp: new Date().toISOString(),
+      readBy: []
+    };
+    
+    messages.push(newMessage);
+    writeMessages(messages);
+    res.status(201).json(newMessage);
+  } catch (error) {
+    console.error('Error sending message:', error);
+    res.status(500).json({ error: 'Failed to send message' });
+  }
+});
+
+// Get messages for an item
+router.get('/item/:itemId', (req, res) => {
+  try {
+    const messages = readMessages();
+    const itemMessages = messages
+      .filter(m => m.itemId === req.params.itemId)
+      .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+    res.json(itemMessages);
+  } catch (error) {
+    console.error('Error fetching messages:', error);
+    res.status(500).json({ error: 'Failed to fetch messages' });
   }
 });
 
