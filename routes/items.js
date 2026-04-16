@@ -130,6 +130,51 @@ router.delete('/:id', (req, res) => {
   }
 });
 
+// Make an offer on an item
+router.post('/:id/offer', (req, res) => {
+  try {
+    const items = readItems();
+    const { offerPrice, buyerId, buyerName } = req.body;
+    const itemId = req.params.id;
+    
+    const itemIndex = items.findIndex(i => i.id === itemId);
+    if (itemIndex === -1) {
+      return res.status(404).json({ error: 'Item not found' });
+    }
+    
+    const item = items[itemIndex];
+    
+    // Update highest offer if this is higher
+    if (!item.highestOffer || offerPrice > item.highestOffer) {
+      item.highestOffer = parseFloat(offerPrice);
+      item.highestOfferBuyer = buyerId;
+      writeItems(items);
+    }
+    
+    // Save the offer message
+    const messages = JSON.parse(readFileSync(join(__dirname, '../data/messages.json')));
+    const newMessage = {
+      id: uuidv4(),
+      itemId,
+      senderId: buyerId,
+      senderName: buyerName,
+      content: `Offered $${offerPrice}`,
+      type: 'offer',
+      price: parseFloat(offerPrice),
+      originalPrice: item.price,
+      status: 'pending',
+      timestamp: new Date().toISOString()
+    };
+    messages.push(newMessage);
+    writeFileSync(join(__dirname, '../data/messages.json'), JSON.stringify(messages, null, 2));
+    
+    res.json({ success: true, message: 'Offer submitted', highestOffer: item.highestOffer });
+  } catch (error) {
+    console.error('Error making offer:', error);
+    res.status(500).json({ error: 'Failed to make offer' });
+  }
+});
+
 // Checkout - buyer confirms payment
 router.post('/:id/checkout', (req, res) => {
   try {
