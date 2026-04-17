@@ -199,8 +199,10 @@ class ChatPanel extends LitElement {
 
   formatTime(timestamp) {
     const date = new Date(timestamp);
+    date.setHours(date.getHours() + 3); // Added 3 hours for UTC+3 timezone
     return date.toLocaleTimeString([], { 
-      hour: '2-digit', minute: '2-digit' });
+      hour: '2-digit', 
+      minute: '2-digit' });
   }
 
   render() {
