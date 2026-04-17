@@ -86,7 +86,7 @@ class ItemGrid extends LitElement {
 
   // MPA Fix: navigate to the item page instead of dispatching a custom event
   viewItem(itemId) {
-    window.location.href = `/items/${itemId}`; //TEST THIS!!!!
+    window.location.href = `/item/${itemId}`; //TEST THIS!!!!
   }
 
   render() {

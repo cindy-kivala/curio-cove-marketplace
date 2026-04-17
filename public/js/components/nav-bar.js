@@ -54,15 +54,24 @@ class NavBar extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
+
+        // 1. Try the EJS attribute first (will be empty string since server passes null)
         const userAttr = this.getAttribute('current-user');
         if (userAttr && userAttr !== '') {
             try {
                 this.currentUser = JSON.parse(userAttr);
-            } catch(e) {
-                console.error('Failed to parse user:', e);
+            } catch {}
+        }
+
+        // 2. Fall back to localStorage — this is where login-form.js saves the user
+        if (!this.currentUser) {
+            const stored = localStorage.getItem('curioCoveUser');
+            if (stored) {
+                try { this.currentUser = JSON.parse(stored); } catch {}
             }
         }
     }
+
 
     goTo(path) {
         window.location.href = path;
@@ -70,7 +79,7 @@ class NavBar extends LitElement {
 
     logout() {
         localStorage.removeItem('curioCoveUser');
-        window.location.href = '/';
+        window.location.href = '/login';
     }
 
     render() {
@@ -84,7 +93,7 @@ class NavBar extends LitElement {
                         ${this.currentUser ? html`
                             <a @click=${() => this.goTo('/')}>Browse</a>
                             <a @click=${() => this.goTo('/dashboard')}>My Listings</a>
-                            <span>${this.currentUser.name}</span>
+                            <span class="username">${this.currentUser.name}</span>
                             <button class="logout-btn" @click=${this.logout}>Logout</button>
                         ` : html`
                             <a @click=${() => this.goTo('/login')}>Login</a>

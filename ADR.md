@@ -37,39 +37,42 @@ The provided backend already had polling endpoints implemented. Given the assess
 
 ---
 
-## ADR 002: Hybrid Rendering (EJS Shell + Lit Components)
+## ADR 002: Multi-Page Architecture with EJS Shells and Lit Components
 
 ### Context
-The assessment explicitly specified: *"EJS for server-side rendering of the page shell • Lit (JavaScript) for client-side interactive components"*.
+The assessment explicitly specified: *"EJS for server-side rendering of the page shell • Lit (JavaScript) for client-side interactive components"*and *"The server decides which Lit components to render"*.
 
 ### Options Considered
 
-| Option | Assessment Compliant? |
-|--------|----------------------|
-| **Full EJS Rendering** | No Lit components |
-| **Full Client-Side Lit** | No EJS shell |
-| **Hybrid (chosen)** |  Yes |
+| Option | Server decides components? | Assessment compliant? |
+|--------|--------------------------|----------------------|
+| **Full EJS rendering** | Yes | No Lit components |
+| **Single Page App (app-shell.js)** | No — JS decides in browser | Partial |
+| **Multi-Page EJS + Lit (chosen)** | Yes | Fully compliant |
 
 ### Decision
-**Use EJS to render the basic HTML shell and let a root Lit component (`<app-shell>`) manage all interactive content.**
+**Use a separate EJS template per route, each loading only the Lit components that page needs.**
+
+Each route is a deliberate server decision:
+
+| Route | EJS Template | Lit Components Loaded |
+|-------|-------------|----------------------|
+| `GET /` | `index.ejs` | `nav-bar`, `item-grid` |
+| `GET /item/:id` | `item.ejs` | `nav-bar`, `item-detail`, `chat-panel` |
+| `GET /login` | `login.ejs` | `login-form` |
+| `GET /dashboard` | `dashboard.ejs` | `nav-bar`, `seller-dashboard` |
 
 ### Trade-offs
 
 | Pros | Cons |
 |------|------|
-| Follows assessment exactly | Two rendering paradigms to manage |
-| Fast initial page load | State must pass between layers |
-| SEO-friendly | Slightly more complex data flow |
+| Server controls component composition | Full page reload on navigation |
+| Each page is independently loadable | No shared in-memory state between pages |
+| Clean separation of concerns | localStorage needed for auth persistence |
+| Directly matches assessment requirement | |
 
-### File Structure
-views/layout.ejs # Server-rendered shell
-public/js/components/
-├── app-shell.js # Root Lit component
-├── login-form.js # Authentication UI
-├── item-grid.js # Browse items
-├── item-detail.js # Single item view
-├── chat-panel.js # Messaging with polling
-└── seller-dashboard.js # Seller management (coming)
+### Rationale
+A single `app-shell.js` approach was initially considered but rejected because it moves the component rendering decision to the browser, bypassing EJS entirely. The MPA approach ensures the server genuinely decides what renders on each page.
 
 ---
 
@@ -130,25 +133,34 @@ data/*.json
 
 ---
 
-## ADR 005: Tailwind CSS CDN over Build Process
+## ADR 005: Local Lit Bundle over CDN
 
 ### Context
-The assessment required Tailwind CSS for styling.
+Lit components require the Lit library to be available in the browser. The initial approach used a CDN URL, but this caused 404 errors because the specific CDN file path (`lit-all.min.js`) does not exist, and CDN availability is unreliable in all environments.
+
+### Options Considered
+
+| Option | Reliability | Build step | Works offline? |
+|--------|-------------|-----------|----------------|
+| **jsdelivr CDN** | Unreliable — file not found | None | No |
+| **unpkg CDN** | Unreliable in some regions | None | No |
+| **Local bundle (chosen)** | Always available | One-time rollup build | Yes |
 
 ### Decision
-**Use Tailwind CSS CDN for development.**
+**Bundle Lit into a single ES module file (`public/js/lit-bundle.min.js`) using Rollup, and serve it from the application itself.**
 
-### Trade-offs
+The importmap in each EJS file maps all Lit imports to this local file:
 
-| Pros | Cons |
-|------|------|
-| Instant setup | No custom configuration |
-| No build step needed | Larger bundle size |
-| Easy to iterate | No purging |
-
-### Implementation
 ```html
-<script src="https://cdn.tailwindcss.com"></script>
+<script type="importmap">
+{
+    "imports": {
+        "lit": "/js/lit-bundle.min.js",
+        "lit-html": "/js/lit-bundle.min.js",
+        "lit-element": "/js/lit-bundle.min.js"
+    }
+}
+</script>
 
 ### ADR 006: UTC Timezone with Client-side Offset
 

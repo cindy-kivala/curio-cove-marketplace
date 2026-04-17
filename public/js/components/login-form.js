@@ -57,6 +57,10 @@ class LoginForm extends LitElement {
     super.connectedCallback();
     const base = this.getAttribute('api-base');
     if (base) this.apiBase = base;
+
+    // If already logged in, skip the login page entirely
+    const stored = localStorage.getItem('curioCoveUser');
+    if (stored) window.location.href = '/';
   }
 
   async handleSubmit(e) {
@@ -83,7 +87,7 @@ class LoginForm extends LitElement {
         const data = await response.json();
         this.error = data.error || 'Login failed';
       }
-    } catch (err) {
+    } catch {
       this.error = 'Network error - please try again';
   } finally {
     this.isLoading = false;
@@ -97,7 +101,7 @@ render() {
         <p style="color:#6b7280; font-size:0.875rem; margin-bottom:1rem">
           New here? Just pick a username and password,an account will be created automatically.
         </p>
-        <form @submit=${this.handleSubmit}>
+        <form @submit=${this.handleSubmit} autoComplete="off">
           <input 
             type="text" 
             class="input-field"
