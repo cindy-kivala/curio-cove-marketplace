@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CurioCove - Item Details</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <script type="importmap">
+    {
+        "imports": {
+            "lit": "/js/lit-bundle.min.js",
+            "lit-html": "/js/lit-bundle.min.js",
+            "lit-element": "/js/lit-bundle.min.js",
+            "@lit/reactive-element": "/js/lit-bundle.min.js"
+        }
+    }
+    </script>
+    <script type="module" src="/js/components/item-detail.js"></script>
+    <script type="module" src="/js/components/chat-panel.js"></script>
+    <script type="module" src="/js/components/nav-bar.js"></script>
+</head>
+<body class="bg-gray-100">
+    <nav-bar api-base="<%= apiBase %>" current-user="<%= user ? JSON.stringify(user) : '' %>"></nav-bar>
+    <main class="max-w-5xl mx-auto px-4 py-8">
+        <item-detail 
+            api-base="<%= apiBase %>" 
+            item-id="<%= itemId %>"
+            current-user="<%= user ? JSON.stringify(user) : '' %>"
+        ></item-detail>
+    </main>
+</body>
+</html>

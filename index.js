@@ -18,6 +18,13 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+//Serve static files from the public directory  
+app.use(express.static(join(__dirname, 'public')));
+
+// Set EJS as the templating engine
+app.set('view engine', 'ejs');
+app.set('views', join(__dirname, 'views'));
+
 // Ensure data directory exists
 const dataDir = join(__dirname, 'data');
 if (!existsSync(dataDir)) {
@@ -165,6 +172,39 @@ app.get('/api/health', (req, res) => {
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Something went wrong!' });
+});
+
+// Homepage
+app.get('/', (req, res) => {
+    res.render('index', { 
+        apiBase: '/api',
+        user: null  // In real app, we'll get from session
+    });
+});
+
+// Item detail page
+app.get('/item/:id', (req, res) => {
+  res.render('item', { 
+    apiBase: '/api',
+    title: 'Item Details',
+    itemId: req.params.id,
+    user: null 
+  });
+});
+
+// Login page
+app.get('/login', (req, res) => {
+    res.render('login', { 
+        apiBase: '/api'
+    });
+});
+
+// Seller dashboard
+app.get('/dashboard', (req, res) => {
+    res.render('dashboard', { 
+        apiBase: '/api',
+        user: null
+    });
 });
 
 app.listen(PORT, () => {

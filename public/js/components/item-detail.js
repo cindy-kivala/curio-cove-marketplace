@@ -1,9 +1,10 @@
-import { LitElement, html, css } from 'https://cdn.jsdelivr.net/npm/lit@3.2.1/index.js';
+import { LitElement, html, css } from 'lit';
 
 class ItemDetail extends LitElement {
   static properties = {
-    itemId: { type: String },
-    currentUser: { type: Object },
+    apiBase: { type: String, attribute: 'api-base' },
+    itemId: { type: String, attribute: 'item-id' },
+    currentUser: { type: Object, attribute: 'current-user' },
     item: { type: Object },
     isLoading: { type: Boolean },
     offerAmount: { type: Number },
@@ -78,28 +79,89 @@ class ItemDetail extends LitElement {
     this.showChat = false;
     this.error = '';
     this.success = '';
+    this.currentUser = null;
   }
 
-  async connectedCallback() {
+  connectedCallback() {
     super.connectedCallback();
-    await this.loadItem();
+
+    // Read attributes set by EJS
+    const base = this.getAttribute('api-base');
+    if (base) this.apiBase = base;
+
+    const itemId = this.getAttribute('item-id');
+    if (itemId) this.itemId = itemId;
+
+    // Read user from EJS attribute OR fall back to localStorage
+    const userAttr = this.getAttribute('current-user');
+    if (userAttr && userAttr !== '') {
+        try { this.currentUser = JSON.parse(userAttr); } catch {}
+      } else {
+        const stored = localStorage.getItem('curioCoveUser');
+        if (stored) this.currentUser = JSON.parse(stored);
+      }
+    this.loadItem();
   }
+
+
+  // async connectedCallback() {
+  //   super.connectedCallback();
+    
+  //   // Read attributes from EJS
+  //   const apiBaseAttr = this.getAttribute('api-base');
+  //   if (apiBaseAttr) this.apiBase = apiBaseAttr;
+    
+  //   const itemIdAttr = this.getAttribute('item-id');
+  //   if (itemIdAttr) this.itemId = itemIdAttr;
+    
+  //   const userAttr = this.getAttribute('current-user');
+  //   if (userAttr && userAttr !== '') {
+  //       try {
+  //           this.currentUser = JSON.parse(userAttr);
+  //       } catch(e) {
+  //           console.error('Failed to parse user:', e);
+  //       }
+  //   }
+    
+    // Load the item data
+  //   await this.loadItem();
+  // }
 
   async loadItem() {
     this.isLoading = true;
     try {
-      const response = await fetch(`/api/items/${this.itemId}`);
-      if (response.ok) {
-        this.item = await response.json();
-      } else {
-        this.error = 'Item not found';
-      }
+        const response = await fetch(`${this.apiBase}/items/${this.itemId}`);
+        if (response.ok) {
+            this.item = await response.json();
+        } else {
+          this.error = 'Item not found';
+        }
     } catch (error) {
-      this.error = 'Failed to load item';
+        this.error = 'Failed to load item';
     } finally {
-      this.isLoading = false;
+        this.isLoading = false;
     }
   }
+  // async connectedCallback() {
+  //   super.connectedCallback();
+  //   await this.loadItem();
+  // }
+
+  // async loadItem() {
+  //   this.isLoading = true;
+  //   try {
+  //     const response = await fetch(`/api/items/${this.itemId}`);
+  //     if (response.ok) {
+  //       this.item = await response.json();
+  //     } else {
+  //       this.error = 'Item not found';
+  //     }
+  //   } catch (error) {
+  //     this.error = 'Failed to load item';
+  //   } finally {
+  //     this.isLoading = false;
+  //   }
+  // }
 
   async makeOffer() {
     if (!this.currentUser) {
@@ -117,26 +179,37 @@ class ItemDetail extends LitElement {
     this.success = '';
     
     try {
-      const response = await fetch(`/api/items/${this.itemId}/offer`, {
-        method: 'POST',
+      await fetch(`${this.apiBase}/messages`, {
+        method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          offerPrice: this.offerAmount,
-          buyerId: this.currentUser.id,
-          buyerName: this.currentUser.name
+          itemId:        this.itemId,
+          senderId:      this.currentUser.id,
+          senderName:    this.currentUser.name,
+          content:       String(this.offerAmount),
+          type:          'offer',
+          price:         this.offerAmount,
+          originalPrice: this.item.price,
+          status:        'pending'
         })
       });
-      
-      if (response.ok) {
-        const data = await response.json();
-        this.success = `Offer of $${this.offerAmount} submitted!`;
-        this.offerAmount = 0;
-        await this.loadItem(); // Reload to show updated highest offer
-      } else {
-        const error = await response.json();
-        this.error = error.error || 'Failed to submit offer';
-      }
-    } catch (error) {
+
+      // Update highest offer on item
+      await fetch(`${this.apiBase}/items/${this.itemId}`, {
+        method:  'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          highestOffer:      this.offerAmount,
+          highestOfferBuyer: this.currentUser.id
+        })
+      });
+
+      this.success = `Offer of $${this.offerAmount.toLocaleString()} submitted!
+       Seller will review and respond in chat.`;
+
+      this.offerAmount = 0;
+      await this.loadItem(); // Reload to show updated highest offer
+    } catch {
       this.error = 'Network error. Please try again.';
     } finally {
       this.isLoading = false;
@@ -147,7 +220,7 @@ class ItemDetail extends LitElement {
     if (!confirm('Confirm payment? The seller will be notified.')) return;
     
     try {
-      const response = await fetch(`/api/items/${this.itemId}/checkout`, {
+      const response = await fetch(`${this.apiBase}/items/${this.itemId}/checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ buyerId: this.currentUser.id })
@@ -155,34 +228,51 @@ class ItemDetail extends LitElement {
       
       if (response.ok) {
         alert('Payment confirmed! Waiting for seller to complete the sale.');
-        this.dispatchEvent(new CustomEvent('back-to-marketplace'));
+        window.location.href = '/' //MPA Fix: navigate instead of dispatching event to parent
       } else {
         alert('Checkout failed. Please try again.');
       }
-    } catch (error) {
+    } catch {
       alert('Network error. Please try again.');
     }
   }
 
+  async confirmSale() {
+    if (!confirm('Have you received payment? This will remove the item from marketplace.')) return;
+    try {
+      const response = await fetch(`${this.apiBase}/items/${this.itemId}/confirm-sale`, { method: 'POST' });
+      if (response.ok) {
+        alert('Sale confirmed! Item removed from marketplace.');
+        window.location.href = '/'; // MPA FIX
+      } else { alert('Failed to confirm sale.'); }
+    } catch { alert('Network error. Please try again.'); }
+  }
   goBack() {
-    this.dispatchEvent(new CustomEvent('back-to-marketplace'));
+    window.location.href = '/';
   }
 
   render() {
     if (this.isLoading) {
-      return html`<div class="text-center py-12">Loading item details...</div>`;
+      return html`<div style="text-align: center; padding: 13rem;">Loading item details...</div>`;
     }
     
-    if (this.error && !this.item) {
-      return html`
-        <div class="text-center py-12">
-          <p class="text-red-500">${this.error}</p>
-          <button @click=${this.goBack} class="btn-primary mt-4">Go Back</button>
-        </div>
-      `;
-    }
+    // if (this.error && !this.item) {
+    //   return html`
+    //     <div class="text-center py-12">
+    //       <p class="text-red-500">${this.error}</p>
+    //       <button @click=${this.goBack} class="btn-primary mt-4">Go Back</button>
+    //     </div>
+    //   `;
+    // }
+
+    if (!this.item) return html`
+      <div style="text-align:center;padding:3rem">
+        <p style="color:red">${this.error || 'Item not found'}</p>
+        <button @click=${this.goBack} class="btn-primary" style="margin-top:1rem">Go Back</button>
+      </div>
+    `;
     
-    const isSeller = this.currentUser && this.item && this.currentUser.id === this.item.sellerId;
+    const isSeller = this.currentUser && this.currentUser.id === this.item.sellerId;
     
     return html`
       <div class="container">
@@ -218,7 +308,8 @@ class ItemDetail extends LitElement {
                     type="number" 
                     class="offer-input"
                     placeholder="Your offer"
-                    .value=${this.offerAmount}
+                    .value=${this.offerAmount || ''}
+                    }
                     @input=${(e) => this.offerAmount = parseFloat(e.target.value)}
                   >
                   <button @click=${this.makeOffer} class="btn-primary" ?disabled=${this.isLoading}>
@@ -229,6 +320,13 @@ class ItemDetail extends LitElement {
                 ${this.success ? html`<div class="success">${this.success}</div>` : ''}
               </div>
             ` : ''}
+
+            ${!this.currentUser ? html`
+              <div style="margin-top:1rem; padding:1rem; background:#f3f4f6; border-radius:8px; text-align:center">
+                <p style="color:#6b7280; margin-bottom:0.5rem">Sign in to make offers and chat</p>
+                <button @click=${() => window.location.href='/login'} class="btn-primary">Login / Register</button>
+              </div>
+            ` : ''}
             
             <!-- Chat Section -->
             <button @click=${() => this.showChat = !this.showChat} class="chat-toggle">
@@ -237,9 +335,10 @@ class ItemDetail extends LitElement {
             
             ${this.showChat ? html`
               <chat-panel 
-                .itemId=${this.itemId}
-                .currentUser=${this.currentUser}
-                .sellerName=${this.item.sellerName}
+                api-base="${this.apiBase}"
+                itemId="${this.itemId}"
+                currentUser="${this.currentUser ? JSON.stringify(this.currentUser) : ''}"
+                sellerName="${this.item.sellerName}"
               ></chat-panel>
             ` : ''}
             
@@ -262,7 +361,7 @@ class ItemDetail extends LitElement {
     if (!confirm('Have you received the payment? This will remove the item from marketplace.')) return;
     
     try {
-      const response = await fetch(`/api/items/${this.itemId}/confirm-sale`, {
+      const response = await fetch(`${this.apiBase}/items/${this.itemId}/confirm-sale`, {
         method: 'POST'
       });
       

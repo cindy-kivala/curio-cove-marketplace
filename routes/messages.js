@@ -87,18 +87,30 @@ router.get('/unread/:userId', (req, res) => {
 router.post('/', (req, res) => {
   try {
     const messages = readMessages();
-    const { itemId, senderId, senderName, content, type = 'text' } = req.body;
+    const { itemId, senderId, senderName, content, type, price, originalPrice, status } = req.body;
     
+    // Add validation
+    if (!itemId || !senderId || !content) {
+      return res.status(400).json({ error: 'itemId, senderId, and content are required' });
+    }
+
     const newMessage = {
       id: uuidv4(),
       itemId,
       senderId,
-      senderName,
+      senderName: senderName || 'Anonymous',
       content,
-      type,
+      type: type || 'text',
       timestamp: new Date().toISOString(),
       readBy: []
     };
+
+    // Offers)
+    if (type === 'offer') {
+      newMessage.price = price;
+      newMessage.originalPrice = originalPrice;
+      newMessage.status = status || 'pending';
+    }
     
     messages.push(newMessage);
     writeMessages(messages);

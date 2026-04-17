@@ -1,7 +1,8 @@
-import { LitElement, html, css } from 'https://cdn.jsdelivr.net/npm/lit@3.2.1/index.js';
+import { LitElement, html, css } from 'lit';
 
 class LoginForm extends LitElement {
   static properties = {
+    apiBase: { type: String, attribute: 'api-base' },
     username: { type: String },
     password: { type: String },
     error: { type: String },
@@ -23,6 +24,7 @@ class LoginForm extends LitElement {
       margin: 10px 0;
       border: 1px solid #ddd;
       border-radius: 5px;
+      box-sizing: border-box;
     }
     .btn {
       width: 100%;
@@ -32,6 +34,7 @@ class LoginForm extends LitElement {
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      font-size: 1rem;
     }
     .btn:disabled {
       background: #9ca3af;
@@ -50,13 +53,19 @@ class LoginForm extends LitElement {
     this.isLoading = false;
   }
 
+   connectedCallback() {
+    super.connectedCallback();
+    const base = this.getAttribute('api-base');
+    if (base) this.apiBase = base;
+  }
+
   async handleSubmit(e) {
     e.preventDefault();
     this.isLoading = true;
     this.error = '';
     
     try {
-      const response = await fetch('/api/users/login', {
+      const response = await fetch(`${this.apiBase}/users/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -67,7 +76,9 @@ class LoginForm extends LitElement {
       
       if (response.ok) {
         const user = await response.json();
-        this.dispatchEvent(new CustomEvent('login-success', { detail: user }));
+        // MPA FIX: save user and redirect-no custom event needed
+        localStorage.setItem('curioCoveUser', JSON.stringify(user));
+        window.location.href = '/';
       } else {
         const data = await response.json();
         this.error = data.error || 'Login failed';
@@ -82,7 +93,10 @@ class LoginForm extends LitElement {
 render() {
     return html`
       <div class="container">
-        <h2 class="text-2xl font-bold mb-4">Login to CurioCove</h2>
+        <h2 class="text-2xl font-bold mb-4">Login to CurioCove 🏝️</h2>
+        <p style="color:#6b7280; font-size:0.875rem; margin-bottom:1rem">
+          New here? Just pick a username and password,an account will be created automatically.
+        </p>
         <form @submit=${this.handleSubmit}>
           <input 
             type="text" 

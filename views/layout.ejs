@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CurioCove Marketplace</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+    
+    <script type="importmap">
+    {
+        "imports": {
+            "lit": "/js/lit-bundle.min.js",
+            "lit-html": "/js/lit-bundle.min.js",
+            "lit-element": "/js/lit-bundle.min.js",
+            "@lit/reactive-element": "/js/lit-bundle.min.js"
+        }
+    }
+    </script>
+
+    <!-- NO separate Lit script tag here. The components import it themselves -->
+    <script type="module" src="/js/components/app-shell.js"></script>
+    <script type="module" src="/js/components/login-form.js"></script>
+    <script type="module" src="/js/components/item-grid.js"></script>
+    <script type="module" src="/js/components/item-detail.js"></script>
+    <script type="module" src="/js/components/chat-panel.js"></script>
+    <script type="module" src="/js/components/seller-dashboard.js"></script>
+</head>
+<body class="bg-gray-100">
+    <app-shell></app-shell>
+</body>
+</html>

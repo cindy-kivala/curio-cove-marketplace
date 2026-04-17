@@ -1,4 +1,4 @@
-import { LitElement, html, css } from 'https://cdn.jsdelivr.net/npm/lit@3.2.1/index.js';
+import { LitElement, html, css } from 'lit';
 
 class AppShell extends LitElement {
   static properties = {

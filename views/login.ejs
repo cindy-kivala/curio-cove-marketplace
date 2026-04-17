@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CurioCove - Login</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <script type="importmap">
+    {
+        "imports": {
+            "lit": "/js/lit-bundle.min.js",
+            "lit-html": "/js/lit-bundle.min.js",
+            "lit-element": "/js/lit-bundle.min.js",
+            "@lit/reactive-element": "/js/lit-bundle.min.js"
+        }
+    }
+    </script>
+
+    <script type="module" src="/js/components/login-form.js"></script>
+</head>
+<body class="bg-gray-100">
+    <main class="max-w-md mx-auto px-4 py-12">
+        <login-form api-base="<%= apiBase %>" redirect-url="/"></login-form>
+    </main>
+</body>
+</html>

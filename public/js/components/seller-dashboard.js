@@ -1,7 +1,8 @@
-import { LitElement, html, css } from 'https://cdn.jsdelivr.net/npm/lit@3.2.1/index.js';
+import { LitElement, html, css } from 'lit';
 
 class SellerDashboard extends LitElement {
   static properties = {
+    apiBase: { type: String, attribute: 'api-base' },
     currentUser: { type: Object },
     myItems: { type: Array },
     isLoading: { type: Boolean },
@@ -132,20 +133,43 @@ class SellerDashboard extends LitElement {
     };
     this.error = '';
     this.success = '';
+    this.currentUser = null;
   }
 
-  async connectedCallback() {
+  connectedCallback() {
     super.connectedCallback();
-    await this.loadMyItems();
+    
+    const base = this.getAttribute('api-base');
+    if (base) this.apiBase = base;
+
+    // Read user from EJS attribute OR localStorage
+    const userAttr = this.getAttribute('current-user');
+    if (userAttr && userAttr !== '') {
+      try { this.currentUser = JSON.parse(userAttr); } catch {}
+    }
+    if (!this.currentUser) {
+      const stored = localStorage.getItem('curioCoveUser');
+      if (stored) this.currentUser = JSON.parse(stored);
+    }
+
+    // Redirect to login if not authenticated
+    if (!this.currentUser) {
+      window.location.href = '/login';
+      return;
+    }
+
+    this.loadMyItems();
   }
 
   async loadMyItems() {
     this.isLoading = true;
     try {
-      const response = await fetch('/api/items');
+      const response = await fetch(`${this.apiBase}/items`);
       const allItems = await response.json();
+
       // Filter items owned by current user
-      this.myItems = allItems.filter(item => item.sellerId === this.currentUser?.id);
+      this.myItems = allItems.filter(item => item.sellerId === 
+  this.currentUser?.id);
     } catch (error) {
       this.error = 'Failed to load your listings';
     } finally {
@@ -164,7 +188,7 @@ class SellerDashboard extends LitElement {
     this.success = '';
 
     try {
-      const response = await fetch('/api/items', {
+      const response = await fetch(`${this.apiBase}/items`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -197,16 +221,14 @@ class SellerDashboard extends LitElement {
     if (!confirm('Are you sure you want to delete this listing?')) return;
 
     try {
-      const response = await fetch(`/api/items/${itemId}`, {
+      const response = await fetch(`${this.apiBase}/items/${itemId}`, {
         method: 'DELETE'
       });
 
       if (response.ok) {
         this.success = 'Item deleted successfully';
         await this.loadMyItems();
-      } else {
-        this.error = 'Failed to delete item';
-      }
+      } else this.error = 'Failed to delete item';
     } catch (error) {
       this.error = 'Network error. Please try again.';
     }
@@ -232,39 +254,26 @@ class SellerDashboard extends LitElement {
   }
 
   handleInput(e, field) {
-    this.newItem[field] = e.target.value;
-  }
-
-  goBack() {
-    this.dispatchEvent(new CustomEvent('back-to-marketplace'));
+    this.newItem = { ...this.newItem, [field]: e.target.value };
   }
 
   render() {
-    if (!this.currentUser) {
-      return html`
-        <div class="dashboard">
-          <div class="empty-state">
-            <p>Please login to view your dashboard</p>
-            <button @click=${this.goBack} class="btn-primary mt-4">Go to Login</button>
-          </div>
-        </div>
-      `;
-    }
-
     return html`
       <div class="dashboard">
         <div class="header">
           <div>
-            <button @click=${this.goBack} class="text-blue-500 hover:underline mb-4">← Back to Marketplace</button>
+            <button @click=${() => window.location.href='/'} style="color:#3b82f6;background:none;border:none;cursor:pointer;margin-bottom:8px">
+              ← Back to Marketplace
+            </button>
             <h1 class="text-2xl font-bold">My Listings</h1>
-            <p class="text-gray-600">Manage your items for sale</p>
+            <p class="text-gray-600">Welcome, ${this.currentUser?.name}</p>
           </div>
           <button @click=${() => this.showCreateForm = !this.showCreateForm} class="btn-primary">
             ${this.showCreateForm ? 'Cancel' : '+ New Listing'}
           </button>
         </div>
 
-        ${this.error ? html`<div class="error">${this.error}</div>` : ''}
+        ${this.error   ? html`<div class="error">${this.error}</div>`     : ''}
         ${this.success ? html`<div class="success">${this.success}</div>` : ''}
 
         ${this.showCreateForm ? html`
@@ -272,39 +281,19 @@ class SellerDashboard extends LitElement {
             <h2 class="text-xl font-bold mb-4">Create New Listing</h2>
             <div class="form-group">
               <label>Item Name *</label>
-              <input 
-                type="text" 
-                .value=${this.newItem.name}
-                @input=${(e) => this.handleInput(e, 'name')}
-                placeholder="e.g., Vintage Comic Book"
-              >
+              <input type="text" .value=${this.newItem.name} @input=${(e) => this.handleInput(e,'name')} placeholder="e.g., Vintage Comic Book" />
             </div>
             <div class="form-group">
-              <label>Price *</label>
-              <input 
-                type="number" 
-                .value=${this.newItem.price}
-                @input=${(e) => this.handleInput(e, 'price')}
-                placeholder="0.00"
-              >
+              <label>Price (KES) *</label>
+              <input type="number" .value=${this.newItem.price} @input=${(e) => this.handleInput(e,'price')} placeholder="0.00" />
             </div>
             <div class="form-group">
               <label>Description</label>
-              <textarea 
-                rows="3"
-                .value=${this.newItem.description}
-                @input=${(e) => this.handleInput(e, 'description')}
-                placeholder="Describe your item..."
-              ></textarea>
+              <textarea rows="3" .value=${this.newItem.description} @input=${(e) => this.handleInput(e,'description')} placeholder="Describe your item..."></textarea>
             </div>
             <div class="form-group">
               <label>Image URL (optional)</label>
-              <input 
-                type="text" 
-                .value=${this.newItem.image}
-                @input=${(e) => this.handleInput(e, 'image')}
-                placeholder="https://..."
-              >
+              <input type="text" .value=${this.newItem.image} @input=${(e) => this.handleInput(e,'image')} placeholder="https://..." />
             </div>
             <button @click=${this.createItem} class="btn-primary" ?disabled=${this.isLoading}>
               ${this.isLoading ? 'Creating...' : 'List Item'}
@@ -312,14 +301,12 @@ class SellerDashboard extends LitElement {
           </div>
         ` : ''}
 
-        ${this.isLoading ? html`
-          <div class="text-center py-12">Loading your listings...</div>
-        ` : ''}
+        ${this.isLoading ? html`<div style="text-align:center;padding:3rem">Loading your listings...</div>` : ''}
 
         ${!this.isLoading && this.myItems.length === 0 ? html`
           <div class="empty-state">
             <p>You haven't listed any items yet.</p>
-            <button @click=${() => this.showCreateForm = true} class="btn-primary mt-4">
+            <button @click=${() => this.showCreateForm = true} class="btn-primary" style="margin-top:1rem">
               Create Your First Listing
             </button>
           </div>
@@ -327,33 +314,28 @@ class SellerDashboard extends LitElement {
 
         ${this.myItems.map(item => html`
           <div class="item-card">
-            <img src="${item.image}" alt="${item.name}" class="item-image">
+            <img src="${item.image}" alt="${item.name}" class="item-image"
+              onerror="this.src='https://via.placeholder.com/80x80?text=?'" />
             <div class="item-info">
               <h3 class="font-bold text-lg">${item.name}</h3>
-              <p class="text-green-600 font-bold">$${item.price}</p>
-              <p class="text-sm text-gray-500">${item.description?.substring(0, 100)}...</p>
-              <div class="mt-2">
-                ${item.paymentStatus === 'paid' ? html`
-                  <span class="badge badge-paid">Payment Confirmed - Ready to Ship</span>
-                ` : html`
-                  <span class="badge badge-active">Active</span>
-                `}
+              <p class="text-green-600 font-bold">KES ${item.price.toLocaleString()}</p>
+              <p class="text-sm text-gray-500">${item.description?.substring(0,100)}...</p>
+              <div style="margin-top:8px">
+                ${item.paymentStatus === 'paid'
+                  ? html`<span class="badge badge-paid">Payment Received</span>`
+                  : html`<span class="badge badge-active">Active</span>`}
                 ${item.highestOffer ? html`
-                  <span class="badge ml-2" style="background:#fef3c7; color:#92400e;">
-                    Highest Offer: $${item.highestOffer}
+                  <span class="badge" style="background:#fef3c7;color:#92400e;margin-left:4px">
+                    Offer: KES ${item.highestOffer.toLocaleString()}
                   </span>
                 ` : ''}
               </div>
             </div>
             <div class="item-actions">
               ${item.paymentStatus === 'paid' ? html`
-                <button @click=${() => this.confirmSale(item.id)} class="btn-success">
-                  Confirm Sale
-                </button>
+                <button @click=${() => this.confirmSale(item.id)} class="btn-success">Confirm Sale</button>
               ` : ''}
-              <button @click=${() => this.deleteItem(item.id)} class="btn-danger">
-                Delete
-              </button>
+              <button @click=${() => this.deleteItem(item.id)} class="btn-danger">Delete</button>
             </div>
           </div>
         `)}
