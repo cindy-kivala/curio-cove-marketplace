@@ -21,7 +21,7 @@ class ChatPanel extends LitElement {
       background: white;
     }
     .messages {
-      height: 300px;
+      height: clamp(200px, 40vh, 300px);
       overflow-y: auto;
       padding: 16px;
     }

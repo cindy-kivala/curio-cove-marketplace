@@ -163,7 +163,7 @@ class ItemDetail extends LitElement {
         })
       });
 
-      this.success = `Offer of $${this.offerAmount.toLocaleString()} submitted!
+      this.success = `Offer of KES ${this.offerAmount.toLocaleString()} submitted!
        Seller will review and respond in chat.`;
 
       this.offerAmount = 0;
@@ -227,7 +227,9 @@ class ItemDetail extends LitElement {
       </div>
     `;
     
-    const isSeller = this.currentUser && this.currentUser.id === this.item.sellerId;
+    const isSeller = this.currentUser && 
+      (this.currentUser.id === this.item.sellerId || 
+       this.currentUser.name === this.item.sellerName);
     
     return html`
       <div class="container">
@@ -280,8 +282,7 @@ class ItemDetail extends LitElement {
                     class="offer-input"
                     placeholder="Your offer"
                     .value=${this.offerAmount || ''}
-                    }
-                    @input=${(e) => this.offerAmount = parseFloat(e.target.value)}
+                       @input=${(e) => this.offerAmount = parseFloat(e.target.value)}
                   >
                   <button @click=${this.makeOffer} class="btn-primary" ?disabled=${this.isLoading}>
                     Submit Offer
@@ -300,10 +301,11 @@ class ItemDetail extends LitElement {
             ` : ''}
             
             <!-- Chat Section -->
-            <button @click=${() => this.showChat = !this.showChat} class="chat-toggle">
-              ${this.showChat ? 'Hide Chat' : 'Message Seller'}
-            </button>
-            
+            ${this.currentUser ? html`
+              <button @click=${() => this.showChat = !this.showChat} class="chat-toggle">
+                ${this.showChat ? 'Hide Chat' : isSeller ? 'View Messages' : 'Message Seller'}
+              </button>
+
             ${this.showChat ? html`
               <chat-panel
                 api-base="${this.apiBase}"
@@ -313,7 +315,8 @@ class ItemDetail extends LitElement {
                 seller-id="${this.item.sellerId}"
               ></chat-panel>
                 
-            ` : ''}
+              ` : ''}
+          ` : ''}
             
             <!-- Seller Actions -->
             ${isSeller && this.item.paymentStatus === 'paid' ? html`

@@ -28,6 +28,7 @@ class NavBar extends LitElement {
             display: flex;
             gap: 1.5rem;
             align-items: center;
+            flex-wrap: wrap;
         }
         a {
             cursor: pointer;

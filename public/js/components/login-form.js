@@ -5,6 +5,7 @@ class LoginForm extends LitElement {
     apiBase: { type: String, attribute: 'api-base' },
     username: { type: String },
     password: { type: String },
+    mode: { type: String },
     error: { type: String },
     isLoading: { type: Boolean }
   };
@@ -50,6 +51,7 @@ class LoginForm extends LitElement {
     this.username = '';
     this.password = '';
     this.error = '';
+    this.mode = 'login';
     this.isLoading = false;
   }
 
@@ -69,7 +71,10 @@ class LoginForm extends LitElement {
     this.error = '';
     
     try {
-      const response = await fetch(`${this.apiBase}/users/login`, {
+      const endpoint = this.mode === 'login'
+        ? `${this.apiBase}/users/login`
+        : `${this.apiBase}/users/register`;
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -95,37 +100,61 @@ class LoginForm extends LitElement {
 }
 
 render() {
-    return html`
-      <div class="container">
-        <h2 class="text-2xl font-bold mb-4">Login to CurioCove 🏝️</h2>
-        <p style="color:#6b7280; font-size:0.875rem; margin-bottom:1rem">
-          New here? Just pick a username and password,an account will be created automatically.
-        </p>
-        <form @submit=${this.handleSubmit} autoComplete="off">
-          <input 
-            type="text" 
-            class="input-field"
-            placeholder="Username"
-            .value=${this.username}
-            @input=${(e) => this.username = e.target.value}
-            required
-          >
-          <input 
-            type="password" 
-            class="input-field"
-            placeholder="Password"
-            .value=${this.password}
-            @input=${(e) => this.password = e.target.value}
-            required
-          >
-          <button type="submit" class="btn" ?disabled=${this.isLoading}>
-            ${this.isLoading ? 'Logging in...' : 'Login / Register'}
-          </button>
-          ${this.error ? html`<div class="error">${this.error}</div>` : ''}
-        </form>
+  return html`
+    <div class="container">
+      <!-- Tab switcher -->
+      <div style="display:flex; margin-bottom:20px; border-bottom:2px solid #e5e7eb;">
+        <button
+          @click=${() => { this.mode = 'login'; this.error = ''; }}
+          style="flex:1; padding:10px; border:none; cursor:pointer; font-weight:600;
+                 background:none;
+                 border-bottom:${this.mode === 'login' ? '2px solid #3b82f6' : 'none'};
+                 color:${this.mode === 'login' ? '#3b82f6' : '#6b7280'}">
+          Login
+        </button>
+        <button
+          @click=${() => { this.mode = 'register'; this.error = ''; }}
+          style="flex:1; padding:10px; border:none; cursor:pointer; font-weight:600;
+                 background:none;
+                 border-bottom:${this.mode === 'register' ? '2px solid #3b82f6' : 'none'};
+                 color:${this.mode === 'register' ? '#3b82f6' : '#6b7280'}">
+          Register
+        </button>
       </div>
-    `;
-  }
+
+      <h2 style="font-size:1.5rem; font-weight:700; margin-bottom:8px">
+        ${this.mode === 'login' ? 'Welcome back 🏝️' : 'Create an account 🏝️'}
+      </h2>
+
+      <form @submit=${this.handleSubmit} autocomplete="off">
+        <input
+          type="text"
+          class="input-field"
+          placeholder="Username"
+          autocomplete="off"
+          .value=${this.username}
+          @input=${(e) => this.username = e.target.value}
+          required
+        />
+        <input
+          type="password"
+          class="input-field"
+          placeholder="Password"
+          autocomplete="new-password"
+          .value=${this.password}
+          @input=${(e) => this.password = e.target.value}
+          required
+        />
+        <button type="submit" class="btn" ?disabled=${this.isLoading}>
+          ${this.isLoading 
+            ? 'Please wait...' 
+            : this.mode === 'login' ? 'Login' : 'Create Account'}
+        </button>
+        ${this.error ? html`<div class="error">${this.error}</div>` : ''}
+      </form>
+    </div>
+  `;
+}
 }
 
 customElements.define('login-form', LoginForm);
