@@ -135,6 +135,16 @@ router.get('/item/:itemId', (req, res) => {
   }
 });
 
+// PUT /api/messages/:id  — update status (accepted / rejected)
+router.put('/:id', (req, res) => {
+  const messages = readMessages();
+  const idx = messages.findIndex(m => m.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Message not found' });
+  messages[idx] = { ...messages[idx], ...req.body };
+  writeData(messages);
+  res.json(messages[idx]);
+});
+
 // Mark messages as read
 router.post('/read', (req, res) => {
   try {

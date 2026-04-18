@@ -5,6 +5,7 @@ class ChatPanel extends LitElement {
     apiBase: { type: String, attribute: 'api-base' },
     itemId: { type: String, attribute: 'item-id' },
     currentUser: { type: Object },
+    sellerId: { type: String },
     sellerName: { type: String },
     messages: { type: Array },
     newMessage: { type: String },
@@ -89,7 +90,7 @@ class ChatPanel extends LitElement {
     this.messages = [];
     this.newMessage = '';
     this.isLoading = true;
-    this.lastTimestamp = new Date().toISOString();
+    this.lastTimestamp = new Date(0).toISOString();
     this.pollInterval = null;
     this.currentUser = null;
   }
@@ -205,6 +206,37 @@ class ChatPanel extends LitElement {
     } catch { this.newMessage = text;}
   }
 
+  async acceptOffer(msg) {
+    try {
+      await fetch(`${this.apiBase}/messages/${msg.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'accepted' }),
+      });
+      await fetch(`${this.apiBase}/items/${msg.itemId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ highestOffer: msg.price }),
+      });
+      await this.loadMessages();
+    } catch {
+      this.error = 'Could not accept offer. Please try again.';
+    }
+  }
+
+  async rejectOffer(msg) {
+    try {
+      await fetch(`${this.apiBase}/messages/${msg.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'rejected' }),
+      });
+      await this.loadMessages();
+    } catch {
+      this.error = 'Could not reject offer. Please try again.';
+    }
+  }
+
   scrollToBottom() {
     setTimeout(() => {
       const el = this.shadowRoot?.querySelector('.messages');
@@ -214,7 +246,7 @@ class ChatPanel extends LitElement {
 
   formatTime(timestamp) {
     const date = new Date(timestamp);
-    date.setHours(date.getHours() + 3); // Added 3 hours for UTC+3 timezone
+    date.setHours(date.getHours());
     return date.toLocaleTimeString([], { 
       hour: '2-digit', 
       minute: '2-digit' });
@@ -233,15 +265,36 @@ class ChatPanel extends LitElement {
               No messages yet — start the conversation!
             </div>
           ` : ''}
-          ${this.messages.map(msg => {
-            const isSent  = this.currentUser && msg.senderId === this.currentUser.id;
-            const isOffer = msg.type === 'offer';
+           ${this.messages.map(msg => {
+            const isSent   = this.currentUser && msg.senderId === this.currentUser.id;
+            const isOffer  = msg.type === 'offer';
+            const isSeller = this.currentUser?.id === this.sellerId;
             return html`
               <div class="message ${isSent ? 'message-sent' : 'message-received'}">
                 ${!isSent ? html`<span class="sender-name">${msg.senderName}</span>` : ''}
-                <div class="bubble ${isSent ? 'bubble-sent' : 'bubble-received'} ${isOffer ? 'bubble-offer' : ''}">
+                <div class="bubble ${isSent ? 'bubble-sent' : 'bubble-received'} ${isOffer ? 'offer-message' : ''}">
                   ${isOffer ? html`Offer: KES ${Number(msg.price).toLocaleString()}` : msg.content}
                 </div>
+
+                ${isOffer ? html`
+                  <div style="margin-top:4px">
+                    ${msg.status === 'accepted' ? html`
+                      <span style="color:#16a34a;font-weight:600">Accepted</span>
+                    ` : msg.status === 'rejected' ? html`
+                      <span style="color:#dc2626;font-weight:600"> Rejected</span>
+                    ` : isSeller ? html`
+                      <button @click=${() => this.acceptOffer(msg)}
+                        style="background:#16a34a;color:white;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;margin-right:6px">
+                        Accept
+                      </button>
+                      <button @click=${() => this.rejectOffer(msg)}
+                        style="background:#dc2626;color:white;border:none;padding:4px 10px;border-radius:4px;cursor:pointer">
+                        Reject
+                      </button>
+                    ` : html`<span style="color:#92400e;font-size:0.8rem">⏳ Pending seller response</span>`}
+                  </div>
+                ` : ''}
+
                 <span class="timestamp">${this.formatTime(msg.timestamp)}</span>
               </div>
             `;

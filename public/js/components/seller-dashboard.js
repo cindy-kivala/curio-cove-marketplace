@@ -9,7 +9,8 @@ class SellerDashboard extends LitElement {
     showCreateForm: { type: Boolean },
     newItem: { type: Object },
     error: { type: String },
-    success: { type: String }
+    success: { type: String },
+    confirmDeleteId: { type: String }
   };
 
   static styles = css`
@@ -133,6 +134,7 @@ class SellerDashboard extends LitElement {
     };
     this.error = '';
     this.success = '';
+    this.confirmDeleteId = null;
     this.currentUser = null;
   }
 
@@ -218,37 +220,37 @@ class SellerDashboard extends LitElement {
   }
 
   async deleteItem(itemId) {
-    if (!confirm('Are you sure you want to delete this listing?')) return;
-
+    this.error = '';
+    this.success = '';
     try {
-      const response = await fetch(`${this.apiBase}/items/${itemId}`, {
-        method: 'DELETE'
-      });
-
+      const response = await fetch(`${this.apiBase}/items/${itemId}`, { method: 'DELETE' });
       if (response.ok) {
+        this.confirmDeleteId = null;
         this.success = 'Item deleted successfully';
         await this.loadMyItems();
-      } else this.error = 'Failed to delete item';
-    } catch (error) {
+      } else {
+        this.confirmDeleteId = null;
+        this.error = 'Failed to delete item. Please try again.';
+      }
+    } catch {
+      this.confirmDeleteId = null;
       this.error = 'Network error. Please try again.';
     }
   }
 
+
   async confirmSale(itemId) {
-    if (!confirm('Confirm sale? This will remove the item from marketplace.')) return;
-
+    this.error = '';
+    this.success = '';
     try {
-      const response = await fetch(`/api/items/${itemId}/confirm-sale`, {
-        method: 'POST'
-      });
-
+      const response = await fetch(`${this.apiBase}/items/${itemId}/confirm-sale`, { method: 'POST' });
       if (response.ok) {
         this.success = 'Sale confirmed! Item removed from marketplace.';
         await this.loadMyItems();
       } else {
-        this.error = 'Failed to confirm sale';
+        this.error = 'Failed to confirm sale. Please try again.';
       }
-    } catch (error) {
+    } catch {
       this.error = 'Network error. Please try again.';
     }
   }
@@ -335,7 +337,21 @@ class SellerDashboard extends LitElement {
               ${item.paymentStatus === 'paid' ? html`
                 <button @click=${() => this.confirmSale(item.id)} class="btn-success">Confirm Sale</button>
               ` : ''}
-              <button @click=${() => this.deleteItem(item.id)} class="btn-danger">Delete</button>
+              ${this.confirmDeleteId === item.id ? html`
+                <div style="display:flex;align-items:center;gap:6px;padding:6px 10px;background:#fef2f2;border:1px solid #fca5a5;border-radius:6px">
+                  <span style="font-size:0.875rem;color:#7f1d1d">Delete this listing?</span>
+                  <button @click=${() => this.deleteItem(item.id)}
+                    style="background:#dc2626;color:white;border:none;padding:4px 10px;border-radius:4px;cursor:pointer">
+                    Yes
+                  </button>
+                  <button @click=${() => this.confirmDeleteId = null}
+                    style="background:#e5e7eb;color:#374151;border:none;padding:4px 10px;border-radius:4px;cursor:pointer">
+                    Cancel
+                  </button>
+                </div>
+              ` : html`
+                <button @click=${() => this.confirmDeleteId = item.id} class="btn-danger">Delete</button>
+              `}
             </div>
           </div>
         `)}

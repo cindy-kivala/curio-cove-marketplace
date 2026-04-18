@@ -10,7 +10,8 @@ class ItemDetail extends LitElement {
     offerAmount: { type: Number },
     showChat: { type: Boolean },
     error: { type: String },
-    success: { type: String }
+    success: { type: String },
+    showBuyConfirm : { type: Boolean }
   };
 
   static styles = css`
@@ -79,6 +80,7 @@ class ItemDetail extends LitElement {
     this.showChat = false;
     this.error = '';
     this.success = '';
+    this.showBuyConfirm = false;
     this.currentUser = null;
   }
 
@@ -104,29 +106,6 @@ class ItemDetail extends LitElement {
   }
 
 
-  // async connectedCallback() {
-  //   super.connectedCallback();
-    
-  //   // Read attributes from EJS
-  //   const apiBaseAttr = this.getAttribute('api-base');
-  //   if (apiBaseAttr) this.apiBase = apiBaseAttr;
-    
-  //   const itemIdAttr = this.getAttribute('item-id');
-  //   if (itemIdAttr) this.itemId = itemIdAttr;
-    
-  //   const userAttr = this.getAttribute('current-user');
-  //   if (userAttr && userAttr !== '') {
-  //       try {
-  //           this.currentUser = JSON.parse(userAttr);
-  //       } catch(e) {
-  //           console.error('Failed to parse user:', e);
-  //       }
-  //   }
-    
-    // Load the item data
-  //   await this.loadItem();
-  // }
-
   async loadItem() {
     this.isLoading = true;
     try {
@@ -142,26 +121,6 @@ class ItemDetail extends LitElement {
         this.isLoading = false;
     }
   }
-  // async connectedCallback() {
-  //   super.connectedCallback();
-  //   await this.loadItem();
-  // }
-
-  // async loadItem() {
-  //   this.isLoading = true;
-  //   try {
-  //     const response = await fetch(`/api/items/${this.itemId}`);
-  //     if (response.ok) {
-  //       this.item = await response.json();
-  //     } else {
-  //       this.error = 'Item not found';
-  //     }
-  //   } catch (error) {
-  //     this.error = 'Failed to load item';
-  //   } finally {
-  //     this.isLoading = false;
-  //   }
-  // }
 
   async makeOffer() {
     if (!this.currentUser) {
@@ -217,8 +176,7 @@ class ItemDetail extends LitElement {
   }
 
   async checkout() {
-    if (!confirm('Confirm payment? The seller will be notified.')) return;
-    
+    this.error = '';
     try {
       const response = await fetch(`${this.apiBase}/items/${this.itemId}/checkout`, {
         method: 'POST',
@@ -227,25 +185,31 @@ class ItemDetail extends LitElement {
       });
       
       if (response.ok) {
-        alert('Payment confirmed! Waiting for seller to complete the sale.');
-        window.location.href = '/' //MPA Fix: navigate instead of dispatching event to parent
+        this.showBuyConfirm = false;
+        this.success = 'Payment confirmed! Waiting for seller to complete the sale.';
+        await this.loadItem();
       } else {
-        alert('Checkout failed. Please try again.');
+        this.error = 'Checkout failed. Please try again.';
       }
     } catch {
-      alert('Network error. Please try again.');
+      this.error = 'Network error. Please try again.';
     }
   }
 
   async confirmSale() {
-    if (!confirm('Have you received payment? This will remove the item from marketplace.')) return;
+    this.error = '';
     try {
       const response = await fetch(`${this.apiBase}/items/${this.itemId}/confirm-sale`, { method: 'POST' });
       if (response.ok) {
-        alert('Sale confirmed! Item removed from marketplace.');
-        window.location.href = '/'; // MPA FIX
-      } else { alert('Failed to confirm sale.'); }
-    } catch { alert('Network error. Please try again.'); }
+        // Short delay so user sees the success message before redirect
+        this.success = 'Sale confirmed! Redirecting...';
+        setTimeout(() => window.location.href = '/', 1500);
+      } else {
+        this.error = 'Failed to confirm sale. Please try again.';
+      }
+    } catch {
+      this.error = 'Network error. Please try again.';
+    }
   }
   goBack() {
     window.location.href = '/';
@@ -256,15 +220,6 @@ class ItemDetail extends LitElement {
       return html`<div style="text-align: center; padding: 13rem;">Loading item details...</div>`;
     }
     
-    // if (this.error && !this.item) {
-    //   return html`
-    //     <div class="text-center py-12">
-    //       <p class="text-red-500">${this.error}</p>
-    //       <button @click=${this.goBack} class="btn-primary mt-4">Go Back</button>
-    //     </div>
-    //   `;
-    // }
-
     if (!this.item) return html`
       <div style="text-align:center;padding:3rem">
         <p style="color:red">${this.error || 'Item not found'}</p>
@@ -294,8 +249,24 @@ class ItemDetail extends LitElement {
                 ` : ''}
               </div>
               
-              ${!isSeller && this.currentUser ? html`
-                <button @click=${this.checkout} class="btn-success">Buy Now at $${this.item.price}</button>
+               ${!isSeller && this.currentUser ? html`
+                ${this.showBuyConfirm ? html`
+                  <div style="display:flex;align-items:center;gap:10px;padding:10px;background:#f0fdf4;border:1px solid #86efac;border-radius:6px">
+                    <span>Confirm purchase for KES ${this.item.price.toLocaleString()}?</span>
+                    <button @click=${this.checkout}
+                      style="background:#16a34a;color:white;border:none;padding:6px 14px;border-radius:4px;cursor:pointer">
+                      Yes, Buy Now
+                    </button>
+                    <button @click=${() => this.showBuyConfirm = false}
+                      style="background:#e5e7eb;color:#374151;border:none;padding:6px 14px;border-radius:4px;cursor:pointer">
+                      Cancel
+                    </button>
+                  </div>
+                ` : html`
+                  <button @click=${() => this.showBuyConfirm = true} class="btn-success">
+                    Buy Now at KES ${this.item.price.toLocaleString()}
+                  </button>
+                `}
               ` : ''}
             </div>
             
@@ -334,12 +305,14 @@ class ItemDetail extends LitElement {
             </button>
             
             ${this.showChat ? html`
-              <chat-panel 
+              <chat-panel
                 api-base="${this.apiBase}"
-                itemId="${this.itemId}"
-                currentUser="${this.currentUser ? JSON.stringify(this.currentUser) : ''}"
-                sellerName="${this.item.sellerName}"
+                item-id="${this.itemId}"
+                current-user="${this.currentUser ? JSON.stringify(this.currentUser) : ''}"
+                seller-name="${this.item.sellerName}"
+                seller-id="${this.item.sellerId}"
               ></chat-panel>
+                
             ` : ''}
             
             <!-- Seller Actions -->
@@ -355,25 +328,6 @@ class ItemDetail extends LitElement {
         </div>
       </div>
     `;
-  }
-  
-  async confirmSale() {
-    if (!confirm('Have you received the payment? This will remove the item from marketplace.')) return;
-    
-    try {
-      const response = await fetch(`${this.apiBase}/items/${this.itemId}/confirm-sale`, {
-        method: 'POST'
-      });
-      
-      if (response.ok) {
-        alert('Sale confirmed! Item removed from marketplace.');
-        this.dispatchEvent(new CustomEvent('back-to-marketplace'));
-      } else {
-        alert('Failed to confirm sale. Please try again.');
-      }
-    } catch (error) {
-      alert('Network error. Please try again.');
-    }
   }
 }
 
