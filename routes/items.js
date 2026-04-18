@@ -51,6 +51,22 @@ router.get('/', (req, res) => {
   }
 });
 
+// Get all items for a specific seller (including sold)
+router.get('/all', (req, res) => {
+  try {
+    let items = readItems();
+    const { sellerId } = req.query;
+    if (sellerId) {
+      items = items.filter(i => i.sellerId === sellerId);
+    }
+    items.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    res.json(items);
+  } catch (error) {
+    console.error('Error fetching all items:', error);
+    res.status(500).json({ error: 'Failed to fetch items' });
+  }
+});
+
 // Get single item
 router.get('/:id', (req, res) => {
   try {
@@ -209,15 +225,14 @@ router.post('/:id/confirm-sale', (req, res) => {
       return res.status(404).json({ error: 'Item not found' });
     }
     
-    // Remove item from marketplace
-    const soldItem = items[index];
-    items.splice(index, 1);
+    items[index].status = 'sold';
+    items[index].soldAt = new Date().toISOString();
     writeItems(items);
-    
-    res.json({ 
-      success: true, 
-      message: 'Item sold and removed from marketplace',
-      item: soldItem
+
+    res.json({
+      success: true,
+      message: 'Sale confirmed',
+      item: items[index]
     });
   } catch (error) {
     console.error('Error confirming sale:', error);

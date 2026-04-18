@@ -262,9 +262,11 @@ class ChatPanel extends LitElement {
         <div class="messages">
           ${this.messages.length === 0 ? html`
             <div style="text-align:center;color:#9ca3af;padding:2rem">
-              No messages yet — start the conversation!
+              <div style="font-size:2.5rem">💬</div>
+              <p style="margin-top:8px;font-weight:500">No messages yet</p>
+              <p style="font-size:0.8rem">Start the conversation!</p>
             </div>
-          ` : ''}
+                      ` : ''}
            ${this.messages.map(msg => {
             const isSent   = this.currentUser && msg.senderId === this.currentUser.id;
             const isOffer  = msg.type === 'offer';

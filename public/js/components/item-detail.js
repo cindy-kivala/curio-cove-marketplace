@@ -11,7 +11,8 @@ class ItemDetail extends LitElement {
     showChat: { type: Boolean },
     error: { type: String },
     success: { type: String },
-    showBuyConfirm : { type: Boolean }
+    showBuyConfirm : { type: Boolean },
+    offerHistory: { type: Array }
   };
 
   static styles = css`
@@ -82,6 +83,7 @@ class ItemDetail extends LitElement {
     this.success = '';
     this.showBuyConfirm = false;
     this.currentUser = null;
+    this.offerHistory = [];
   }
 
   connectedCallback() {
@@ -112,6 +114,11 @@ class ItemDetail extends LitElement {
         const response = await fetch(`${this.apiBase}/items/${this.itemId}`);
         if (response.ok) {
             this.item = await response.json();
+            const msgRes = await fetch(`${this.apiBase}/messages/item/${this.itemId}/poll/1970-01-01T00:00:00.000Z`);
+            if (msgRes.ok) {
+              const data = await msgRes.json();
+              this.offerHistory = (data.messages || []).filter(m => m.type === 'offer');
+            }
         } else {
           this.error = 'Item not found';
         }
@@ -211,6 +218,14 @@ class ItemDetail extends LitElement {
       this.error = 'Network error. Please try again.';
     }
   }
+
+  _timeAgo(timestamp) {
+    const diff = Math.floor((Date.now() - new Date(timestamp)) / 1000);
+    if (diff < 60) return `${diff}s ago`;
+    if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
+    return `${Math.floor(diff/3600)}h ago`;
+  }
+
   goBack() {
     window.location.href = '/';
   }
@@ -243,7 +258,7 @@ class ItemDetail extends LitElement {
             <p class="text-gray-600 mb-4">Sold by: ${this.item.sellerName}</p>
             <p class="text-gray-700 mb-6">${this.item.description}</p>
             
-            <div class="flex items-center justify-between">
+            <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;">
               <div>
                 <span class="text-2xl font-bold text-green-600">$${this.item.price}</span>
                 ${this.item.highestOffer ? html`
@@ -290,6 +305,23 @@ class ItemDetail extends LitElement {
                 </div>
                 ${this.error ? html`<div class="error">${this.error}</div>` : ''}
                 ${this.success ? html`<div class="success">${this.success}</div>` : ''}
+              </div>
+            ` : ''}
+
+            ${this.offerHistory.length > 0 ? html`
+              <div style="margin-top:20px">
+                <h3 style="font-weight:700;margin-bottom:10px">Previous Offers</h3>
+                ${this.offerHistory.map(o => html`
+                  <div style="display:flex;justify-content:space-between;align-items:center;
+                    padding:8px 12px;border-radius:6px;background:#f9fafb;margin-bottom:6px;font-size:0.875rem">
+                    <span>${o.senderName} offered <strong>KES ${Number(o.price).toLocaleString()}</strong></span>
+                    <span style="color:#6b7280">${this._timeAgo(o.timestamp)}</span>
+                    <span style="font-weight:600;color:${
+                      o.status === 'accepted' ? '#16a34a' :
+                      o.status === 'rejected' ? '#dc2626' : '#d97706'
+                    }">${o.status === 'accepted' ? 'Accepted' : o.status === 'rejected' ? 'Rejected' : 'Pending'}</span>
+                  </div>
+                `)}
               </div>
             ` : ''}
 

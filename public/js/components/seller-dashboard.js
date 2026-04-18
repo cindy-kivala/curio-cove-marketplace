@@ -10,7 +10,12 @@ class SellerDashboard extends LitElement {
     newItem: { type: Object },
     error: { type: String },
     success: { type: String },
-    confirmDeleteId: { type: String }
+    confirmDeleteId: { type: String },
+    confirmOfferId: { type: String },
+    previewImage: { type: String },
+    activeTab: { type: String },
+    purchases: { type: Array },
+    purchasesLoading: { type: Boolean }
   };
 
   static styles = css`
@@ -119,6 +124,17 @@ class SellerDashboard extends LitElement {
       padding: 48px;
       color: #6b7280;
     }
+
+    @media (max-width: 640px) {
+    .item-card {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .item-actions {
+      width: 100%;
+      justify-content: flex-end;
+    }
+  }
   `;
 
   constructor() {
@@ -135,7 +151,12 @@ class SellerDashboard extends LitElement {
     this.error = '';
     this.success = '';
     this.confirmDeleteId = null;
+    this.confirmOfferId = null;
     this.currentUser = null;
+    this.previewImage = '';
+    this.activeTab = 'listings';
+    this.purchases = [];
+    this.purchasesLoading = false;
   }
 
   connectedCallback() {
@@ -255,6 +276,88 @@ class SellerDashboard extends LitElement {
     }
   }
 
+  async acceptOffer(item) {
+  this.error = '';
+  this.success = '';
+  try {
+    // Mark highest offer message as accepted
+    const msgRes = await fetch(`${this.apiBase}/messages/item/${item.id}/poll/1970-01-01T00:00:00.000Z`);
+    if (msgRes.ok) {
+      const data = await msgRes.json();
+      const offerMsg = data.messages
+        .filter(m => m.type === 'offer' && m.price === item.highestOffer)
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
+      if (offerMsg) {
+        await fetch(`${this.apiBase}/messages/${offerMsg.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'accepted' })
+        });
+      }
+    }
+    // Update item price to accepted offer
+    await fetch(`${this.apiBase}/items/${item.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ price: item.highestOffer })
+    });
+    this.confirmOfferId = null;
+    this.success = `Offer of KES ${item.highestOffer.toLocaleString()} accepted! Price updated.`;
+    await this.loadMyItems();
+  } catch {
+    this.error = 'Failed to accept offer. Please try again.';
+  }
+}
+
+  async rejectOffer(item) {
+    this.error = '';
+    this.success = '';
+    try {
+      const msgRes = await fetch(`${this.apiBase}/messages/item/${item.id}/poll/1970-01-01T00:00:00.000Z`);
+      if (msgRes.ok) {
+        const data = await msgRes.json();
+        const offerMsg = data.messages
+          .filter(m => m.type === 'offer' && m.price === item.highestOffer)
+          .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
+        if (offerMsg) {
+          await fetch(`${this.apiBase}/messages/${offerMsg.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'rejected' })
+          });
+        }
+      }
+      // Clear highest offer
+      await fetch(`${this.apiBase}/items/${item.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          price: item.highestOffer,
+          status: 'sold',
+          soldAt: new Date().toISOString(),
+          soldTo: item.highestOfferBuyer
+        })
+      });
+      this.confirmOfferId = null;
+      this.success = 'Offer rejected.';
+      await this.loadMyItems();
+    } catch {
+      this.error = 'Failed to reject offer. Please try again.';
+    }
+  }
+
+  async loadPurchases() {
+    this.purchasesLoading = true;
+    try {
+      const res = await fetch(`${this.apiBase}/users/${this.currentUser.id}/purchases`);
+      if (res.ok) this.purchases = await res.json();
+    } catch {
+      this.error = 'Failed to load purchases';
+    } finally {
+      this.purchasesLoading = false;
+    }
+  }
+
   handleInput(e, field) {
     this.newItem = { ...this.newItem, [field]: e.target.value };
   }
@@ -275,8 +378,52 @@ class SellerDashboard extends LitElement {
           </button>
         </div>
 
+        <!-- Tab bar -->
+        <div style="display:flex;gap:0;margin-bottom:24px;border-bottom:2px solid #e5e7eb;">
+          <button @click=${() => this.activeTab = 'listings'}
+            style="padding:10px 24px;border:none;cursor:pointer;font-weight:600;background:none;
+              border-bottom:${this.activeTab === 'listings' ? '2px solid #3b82f6' : 'none'};
+              color:${this.activeTab === 'listings' ? '#3b82f6' : '#6b7280'}">
+            My Listings
+          </button>
+          <button @click=${() => { this.activeTab = 'purchases'; this.loadPurchases(); }}
+            style="padding:10px 24px;border:none;cursor:pointer;font-weight:600;background:none;
+              border-bottom:${this.activeTab === 'purchases' ? '2px solid #3b82f6' : 'none'};
+              color:${this.activeTab === 'purchases' ? '#3b82f6' : '#6b7280'}">
+            My Purchases
+          </button>
+        </div>
+
         ${this.error   ? html`<div class="error">${this.error}</div>`     : ''}
         ${this.success ? html`<div class="success">${this.success}</div>` : ''}
+
+        ${this.activeTab === 'purchases' ? html`
+          ${this.purchasesLoading ? html`
+            <div style="text-align:center;padding:3rem">Loading purchases...</div>
+          ` : this.purchases.length === 0 ? html`
+            <div class="empty-state">
+              <div style="font-size:3rem">🛍️</div>
+              <h3 style="font-size:1.25rem;font-weight:700;margin:12px 0 6px">No purchases yet</h3>
+              <p style="color:#9ca3af">Items you buy will appear here.</p>
+            </div>
+          ` : html`
+            ${this.purchases.map(item => html`
+              <div class="item-card">
+                <img src="${item.image}" alt="${item.name}" class="item-image"
+                  onerror="this.src='https://via.placeholder.com/80x80?text=?'" />
+                <div class="item-info">
+                  <h3 class="font-bold text-lg">${item.name}</h3>
+                  <p class="text-green-600 font-bold">KES ${item.price.toLocaleString()}</p>
+                  <p class="text-sm text-gray-500">Sold by: ${item.sellerName}</p>
+                  <p class="text-sm text-gray-400">${item.soldAt ? new Date(item.soldAt).toLocaleDateString() : ''}</p>
+                  <span class="badge" style="background:#d1fae5;color:#065f46;margin-top:4px;display:inline-block">
+                    Purchased
+                  </span>
+                </div>
+              </div>
+            `)}
+          `}
+        ` : html`
 
         ${this.showCreateForm ? html`
           <div class="form-container">
@@ -295,7 +442,15 @@ class SellerDashboard extends LitElement {
             </div>
             <div class="form-group">
               <label>Image URL (optional)</label>
-              <input type="text" .value=${this.newItem.image} @input=${(e) => this.handleInput(e,'image')} placeholder="https://..." />
+              <input type="text" .value=${this.newItem.image} @input=${(e) => {
+                this.handleInput(e, 'image');
+                this.previewImage = e.target.value;
+              }} placeholder="https://..." />
+              ${this.previewImage ? html`
+                <img src="${this.previewImage}" style="height:100px;margin-top:8px;border-radius:6px;object-fit:cover;"
+                  @error=${(e) => { e.target.style.display = 'none'; }}
+                  @load=${(e)  => { e.target.style.display = 'block'; }} />
+              ` : ''}
             </div>
             <button @click=${this.createItem} class="btn-primary" ?disabled=${this.isLoading}>
               ${this.isLoading ? 'Creating...' : 'List Item'}
@@ -307,10 +462,10 @@ class SellerDashboard extends LitElement {
 
         ${!this.isLoading && this.myItems.length === 0 ? html`
           <div class="empty-state">
-            <p>You haven't listed any items yet.</p>
-            <button @click=${() => this.showCreateForm = true} class="btn-primary" style="margin-top:1rem">
-              Create Your First Listing
-            </button>
+            <div style="font-size:3rem">📦</div>
+            <h3 style="font-size:1.25rem;font-weight:700;margin:12px 0 6px">No listings yet</h3>
+            <p style="margin-bottom:1rem;color:#9ca3af">Your shelf is empty — list your first collectible!</p>
+            <button @click=${() => this.showCreateForm = true} class="btn-primary">Create Your First Listing</button>
           </div>
         ` : ''}
 
@@ -323,13 +478,37 @@ class SellerDashboard extends LitElement {
               <p class="text-green-600 font-bold">KES ${item.price.toLocaleString()}</p>
               <p class="text-sm text-gray-500">${item.description?.substring(0,100)}...</p>
               <div style="margin-top:8px">
-                ${item.paymentStatus === 'paid'
+                ${item.status === 'sold'
+                  ? html`<span class="badge" style="background:#f3f4f6;color:#6b7280">Sold</span>`
+                  : item.paymentStatus === 'paid'
                   ? html`<span class="badge badge-paid">Payment Received</span>`
                   : html`<span class="badge badge-active">Active</span>`}
-                ${item.highestOffer ? html`
+                ${item.highestOffer && item.paymentStatus !== 'paid' ? html`
                   <span class="badge" style="background:#fef3c7;color:#92400e;margin-left:4px">
                     Offer: KES ${item.highestOffer.toLocaleString()}
                   </span>
+                  ${this.confirmOfferId === item.id ? html`
+                    <div style="margin-top:8px;display:flex;align-items:center;gap:6px;padding:6px 10px;background:#f0fdf4;border:1px solid #86efac;border-radius:6px">
+                      <span style="font-size:0.875rem;color:#14532d">Accept KES ${item.highestOffer.toLocaleString()}?</span>
+                      <button @click=${() => this.acceptOffer(item)}
+                        style="background:#16a34a;color:white;border:none;padding:4px 10px;border-radius:4px;cursor:pointer">
+                        Accept
+                      </button>
+                      <button @click=${() => this.rejectOffer(item)}
+                        style="background:#dc2626;color:white;border:none;padding:4px 10px;border-radius:4px;cursor:pointer">
+                        Reject
+                      </button>
+                      <button @click=${() => this.confirmOfferId = null}
+                        style="background:#e5e7eb;color:#374151;border:none;padding:4px 10px;border-radius:4px;cursor:pointer">
+                        Cancel
+                      </button>
+                    </div>
+                  ` : html`
+                    <button @click=${() => this.confirmOfferId = item.id}
+                      style="margin-top:6px;background:#f59e0b;color:white;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:0.8rem">
+                      Review Offer
+                    </button>
+                  `}
                 ` : ''}
               </div>
             </div>
@@ -355,6 +534,7 @@ class SellerDashboard extends LitElement {
             </div>
           </div>
         `)}
+        `}
       </div>
     `;
   }

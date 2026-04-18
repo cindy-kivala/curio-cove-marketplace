@@ -3,7 +3,8 @@ import { LitElement, html, css } from 'lit';
 class NavBar extends LitElement {
     static properties = {
         apiBase: { type: String },
-        currentUser: { type: Object, state: true }
+        currentUser: { type: Object, state: true },
+        unreadCount: { type: Number }
     };
 
     static styles = css`
@@ -46,11 +47,16 @@ class NavBar extends LitElement {
             border: none;
             cursor: pointer;
         }
+        @media (max-width: 640px) {
+          .browse-link, .listings-link { display: none; }
+    }
     `;
 
     constructor() {
         super();
         this.currentUser = null;
+        this.unreadCount = 0;
+        this._pollInterval = null;
     }
 
     connectedCallback() {
@@ -71,6 +77,20 @@ class NavBar extends LitElement {
                 try { this.currentUser = JSON.parse(stored); } catch {}
             }
         }
+
+        if (this.currentUser) {
+          this._fetchUnreadCount();
+          this._pollInterval = setInterval(() => this._fetchUnreadCount(), 10000);
+
+          if (window.location.pathname === '/dashboard') {
+            this.unreadCount = 0;
+          }
+        }
+    }
+
+    disconnectedCallback() {
+      super.disconnectedCallback();
+      if (this._pollInterval) clearInterval(this._pollInterval);
     }
 
 
@@ -83,6 +103,17 @@ class NavBar extends LitElement {
         window.location.href = '/login';
     }
 
+    async _fetchUnreadCount() {
+    try {
+        const base = this.apiBase || this.getAttribute('api-base') || '/api';
+        const res = await fetch(`${base}/messages/unread/${this.currentUser.id}`);
+        if (res.ok) {
+        const data = await res.json();
+        this.unreadCount = data.total || 0;
+        }
+    } catch {}
+    }
+
     render() {
         return html`
             <nav>
@@ -92,8 +123,19 @@ class NavBar extends LitElement {
                     </div>
                     <div class="nav-links">
                         ${this.currentUser ? html`
-                            <a @click=${() => this.goTo('/')}>Browse</a>
-                            <a @click=${() => this.goTo('/dashboard')}>My Listings</a>
+                            <a class="browse-link" @click=${() => this.goTo('/')}>Browse</a>
+                            <a class="listings-link" @click=${() => this.goTo('/dashboard')} style="position:relative">
+                            <a @click=${() => this.goTo('/dashboard')} style="position:relative">
+                              My Listings
+                              ${this.unreadCount > 0 ? html`
+                                <span style="
+                                  position:absolute; top:-8px; right:-14px;
+                                  background:#ef4444; color:white;
+                                  border-radius:9999px; font-size:0.65rem;
+                                  padding:1px 5px; font-weight:700;
+                                ">${this.unreadCount}</span>
+                                ` : ''}
+                            </a>
                             <span class="username">${this.currentUser.name}</span>
                             <button class="logout-btn" @click=${this.logout}>Logout</button>
                         ` : html`

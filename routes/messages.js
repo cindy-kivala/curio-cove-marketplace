@@ -141,7 +141,7 @@ router.put('/:id', (req, res) => {
   const idx = messages.findIndex(m => m.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'Message not found' });
   messages[idx] = { ...messages[idx], ...req.body };
-  writeData(messages);
+  writeMessages(messages);
   res.json(messages[idx]);
 });
 

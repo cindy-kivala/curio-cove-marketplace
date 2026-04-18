@@ -169,4 +169,19 @@ router.put('/:id/password', (req, res) => {
   }
 });
 
+// Get items purchased by a user
+router.get('/:id/purchases', (req, res) => {
+  try {
+    const itemsPath = join(__dirname, '../data/items.json');
+    const items = JSON.parse(readFileSync(itemsPath));
+    const purchases = items.filter(i => 
+      i.soldTo === req.params.id || i.paymentConfirmedBy === req.params.id
+    );
+    res.json(purchases);
+  } catch (error) {
+    console.error('Error fetching purchases:', error);
+    res.status(500).json({ error: 'Failed to fetch purchases' });
+  }
+});
+
 export default router;

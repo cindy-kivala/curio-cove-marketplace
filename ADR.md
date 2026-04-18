@@ -260,3 +260,16 @@ curio-cove-marketplace/
 
 - Implement proper Tailwind build process with PurgeCSS
 
+## ADR 007: Per-listing Chat over Private Messaging
+
+### Decision
+Chat is scoped per item listing, visible to all participants, 
+modelled after Facebook Marketplace and OLX rather than 
+private direct messaging.
+
+### Rationale
+The assessment specifies messaging "for each item" which maps 
+directly to a per-listing thread. Private per-user threads would 
+require additional backend endpoints, inbox UI, and conversation 
+management outside the assessment scope.
+
