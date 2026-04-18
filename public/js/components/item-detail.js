@@ -134,6 +134,11 @@ class ItemDetail extends LitElement {
       this.error = 'Please login to make an offer';
       return;
     }
+
+    if (this.item.status === 'sold') {
+      this.error = 'This item has already been sold';
+      return;
+    }
     
     if (this.offerAmount <= 0) {
       this.error = 'Please enter a valid offer amount';
@@ -161,7 +166,8 @@ class ItemDetail extends LitElement {
       });
 
       // Update highest offer on item
-      await fetch(`${this.apiBase}/items/${this.itemId}`, {
+      // Update highest offer on item
+      const putResponse = await fetch(`${this.apiBase}/items/${this.itemId}`, {
         method:  'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -170,11 +176,15 @@ class ItemDetail extends LitElement {
         })
       });
 
-      this.success = `Offer of KES ${this.offerAmount.toLocaleString()} submitted!
-       Seller will review and respond in chat.`;
+      if (putResponse.status === 409) {
+        this.error = 'This item has already been sold';
+        await this.loadItem();
+        return;
+      }
 
+      this.success = `Offer of KES ${this.offerAmount.toLocaleString()} submitted! Seller will review and respond in chat.`;
       this.offerAmount = 0;
-      await this.loadItem(); // Reload to show updated highest offer
+      await this.loadItem();
     } catch {
       this.error = 'Network error. Please try again.';
     } finally {
@@ -184,6 +194,10 @@ class ItemDetail extends LitElement {
 
   async checkout() {
     this.error = '';
+    if (this.item.status === 'sold') {
+      this.error = 'This item has already been sold';
+      return;
+    }
     try {
       const response = await fetch(`${this.apiBase}/items/${this.itemId}/checkout`, {
         method: 'POST',
@@ -196,7 +210,9 @@ class ItemDetail extends LitElement {
         this.success = 'Payment confirmed! Waiting for seller to complete the sale.';
         await this.loadItem();
       } else {
-        this.error = 'Checkout failed. Please try again.';
+        const data = await response.json();
+        this.error = data.error || 'Checkout failed. Please try again.';
+        await this.loadItem(); // reload to show sold banner
       }
     } catch {
       this.error = 'Network error. Please try again.';
@@ -257,6 +273,12 @@ class ItemDetail extends LitElement {
             <h1 class="text-3xl font-bold mb-2">${this.item.name}</h1>
             <p class="text-gray-600 mb-4">Sold by: ${this.item.sellerName}</p>
             <p class="text-gray-700 mb-6">${this.item.description}</p>
+            ${this.item.status === 'sold' ? html`
+              <div style="display:inline-block;background:#f3f4f6;color:#6b7280;
+                padding:6px 14px;border-radius:9999px;font-weight:600;margin-bottom:12px">
+                🔴 This item has been sold
+              </div>
+            ` : ''}
             
             <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;">
               <div>
@@ -266,7 +288,7 @@ class ItemDetail extends LitElement {
                 ` : ''}
               </div>
               
-               ${!isSeller && this.currentUser ? html`
+               ${!isSeller && this.currentUser && this.item.status !== 'sold' ? html`
                 ${this.showBuyConfirm ? html`
                   <div style="display:flex;align-items:center;gap:10px;padding:10px;background:#f0fdf4;border:1px solid #86efac;border-radius:6px">
                     <span>Confirm purchase for KES ${this.item.price.toLocaleString()}?</span>
@@ -288,8 +310,8 @@ class ItemDetail extends LitElement {
             </div>
             
             <!-- Offer Section (for buyers, not sellers) -->
-            ${!isSeller && this.currentUser ? html`
-              <div class="offer-section">
+            ${!isSeller && this.currentUser && this.item.status !== 'sold' ? html`
+               <div class="offer-section">
                 <h3 class="font-bold mb-2">Make an Offer</h3>
                 <div class="flex gap-2">
                   <input 

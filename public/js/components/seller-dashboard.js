@@ -187,12 +187,14 @@ class SellerDashboard extends LitElement {
   async loadMyItems() {
     this.isLoading = true;
     try {
-      const response = await fetch(`${this.apiBase}/items`);
-      const allItems = await response.json();
-
-      // Filter items owned by current user
-      this.myItems = allItems.filter(item => item.sellerId === 
-  this.currentUser?.id);
+      const response = await fetch(`${this.apiBase}/items/all?sellerId=${this.currentUser.id}`);
+      if (response.ok) {
+        this.myItems = await response.json();
+      } else {
+        const res2 = await fetch(`${this.apiBase}/items`);
+        const allItems = await res2.json();
+        this.myItems = allItems.filter(item => item.sellerId === this.currentUser?.id);
+      }
     } catch (error) {
       this.error = 'Failed to load your listings';
     } finally {
@@ -277,37 +279,54 @@ class SellerDashboard extends LitElement {
   }
 
   async acceptOffer(item) {
-  this.error = '';
-  this.success = '';
-  try {
-    // Mark highest offer message as accepted
-    const msgRes = await fetch(`${this.apiBase}/messages/item/${item.id}/poll/1970-01-01T00:00:00.000Z`);
-    if (msgRes.ok) {
-      const data = await msgRes.json();
-      const offerMsg = data.messages
-        .filter(m => m.type === 'offer' && m.price === item.highestOffer)
-        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
-      if (offerMsg) {
-        await fetch(`${this.apiBase}/messages/${offerMsg.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: 'accepted' })
-        });
+    this.error = '';
+    this.success = '';
+    try {
+      const msgRes = await fetch(`${this.apiBase}/messages/item/${item.id}/poll/1970-01-01T00:00:00.000Z`);
+      if (msgRes.ok) {
+        const data = await msgRes.json();
+        // Find the matching offer message
+        const offerMsg = data.messages
+          .filter(m => m.type === 'offer' && m.price === item.highestOffer)
+          .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
+        if (offerMsg) {
+          // Accept the matched offer
+          await fetch(`${this.apiBase}/messages/${offerMsg.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'accepted' })
+          });
+          // Reject all other pending offers for this item
+          const otherOffers = data.messages.filter(
+            m => m.type === 'offer' && m.status === 'pending' && m.id !== offerMsg.id
+          );
+          await Promise.all(otherOffers.map(m =>
+            fetch(`${this.apiBase}/messages/${m.id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ status: 'rejected' })
+            })
+          ));
+        }
       }
+      // Mark item as sold at the accepted offer price
+      await fetch(`${this.apiBase}/items/${item.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          price: item.highestOffer,
+          status: 'sold',
+          soldAt: new Date().toISOString(),
+          soldTo: item.highestOfferBuyer
+        })
+      });
+      this.confirmOfferId = null;
+      this.success = `Offer of KES ${item.highestOffer.toLocaleString()} accepted! Item marked as sold.`;
+      await this.loadMyItems();
+    } catch {
+      this.error = 'Failed to accept offer. Please try again.';
     }
-    // Update item price to accepted offer
-    await fetch(`${this.apiBase}/items/${item.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ price: item.highestOffer })
-    });
-    this.confirmOfferId = null;
-    this.success = `Offer of KES ${item.highestOffer.toLocaleString()} accepted! Price updated.`;
-    await this.loadMyItems();
-  } catch {
-    this.error = 'Failed to accept offer. Please try again.';
   }
-}
 
   async rejectOffer(item) {
     this.error = '';
@@ -316,27 +335,20 @@ class SellerDashboard extends LitElement {
       const msgRes = await fetch(`${this.apiBase}/messages/item/${item.id}/poll/1970-01-01T00:00:00.000Z`);
       if (msgRes.ok) {
         const data = await msgRes.json();
-        const offerMsg = data.messages
-          .filter(m => m.type === 'offer' && m.price === item.highestOffer)
-          .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
-        if (offerMsg) {
-          await fetch(`${this.apiBase}/messages/${offerMsg.id}`, {
+        const pendingOffers = data.messages.filter(m => m.type === 'offer' && m.status === 'pending');
+        await Promise.all(pendingOffers.map(m =>
+          fetch(`${this.apiBase}/messages/${m.id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status: 'rejected' })
-          });
-        }
+          })
+        ));
       }
-      // Clear highest offer
+      // Clear highest offer from item
       await fetch(`${this.apiBase}/items/${item.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          price: item.highestOffer,
-          status: 'sold',
-          soldAt: new Date().toISOString(),
-          soldTo: item.highestOfferBuyer
-        })
+        body: JSON.stringify({ highestOffer: null, highestOfferBuyer: null })
       });
       this.confirmOfferId = null;
       this.success = 'Offer rejected.';

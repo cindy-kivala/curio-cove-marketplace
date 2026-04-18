@@ -123,7 +123,11 @@ router.put('/:id', (req, res) => {
     if (index === -1) {
       return res.status(404).json({ error: 'Item not found' });
     }
-    
+
+    if (items[index].status === 'sold' && !req.body.hasOwnProperty('status')) {
+      return res.status(409).json({ error: 'This item has already been sold' });
+    }
+        
     items[index] = { ...items[index], ...req.body };
     writeItems(items);
     res.json(items[index]);
@@ -200,6 +204,10 @@ router.post('/:id/checkout', (req, res) => {
       return res.status(404).json({ error: 'Item not found' });
     }
     
+    if (items[index].status === 'sold') {
+      return res.status(409).json({ error: 'This item has already been sold' });
+    }
+
     items[index].paymentStatus = 'paid';
     items[index].paymentConfirmedBy = req.body.buyerId;
     items[index].paymentConfirmedAt = new Date().toISOString();
@@ -225,6 +233,10 @@ router.post('/:id/confirm-sale', (req, res) => {
       return res.status(404).json({ error: 'Item not found' });
     }
     
+    if (items[index].status === 'sold' && !req.body.status) {
+      return res.status(409).json({ error: 'This item has already been sold' });
+    }
+
     items[index].status = 'sold';
     items[index].soldAt = new Date().toISOString();
     writeItems(items);
