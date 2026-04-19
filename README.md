@@ -46,8 +46,18 @@ Use these accounts to explore the full user journey:
 3. Open the same item and use Message Seller — messages appear in real time
 
 ## Screenshots
+### Marketplace
+![Homepage](screenshots/homepage.png) 
+### Seller Dashboard
+![Seller-Dashboard] (screenshots/seller-dashboard.png)
+### Offer Review
+![Offer-Review] (screenshots/offer-review.png)
+### Real Time Chats
+![Seller-Chat] (screenshots/seller-chat.png)
+![Buyer-Response] (screenshots/buyer-chat-response.png)
+### Seller Rating
+![Buyer-Rates-Seller-Experience/Product] (screenshots/seller-product-experience-rating.png)
 
-> Homepage — item grid with category filters  
 > Item detail — offer form, chat, offer history  
 > Seller dashboard — listings, offer management, purchases, ratings
 
