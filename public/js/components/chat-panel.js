@@ -10,7 +10,8 @@ class ChatPanel extends LitElement {
     messages: { type: Array },
     newMessage: { type: String },
     isLoading: { type: Boolean },
-    lastTimestamp: { type: String }
+    lastTimestamp: { type: String },
+    isTyping: { type: Boolean }
   };
 
   static styles = css`
@@ -65,6 +66,10 @@ class ChatPanel extends LitElement {
       border-top: 1px solid #e5e7eb;
       gap: 8px;
     }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
     .message-input {
       flex: 1;
       padding: 8px 12px;
@@ -93,6 +98,8 @@ class ChatPanel extends LitElement {
     this.lastTimestamp = new Date(0).toISOString();
     this.pollInterval = null;
     this.currentUser = null;
+    this.isTyping = false;
+    this._typingTimeout = null;
   }
 
   connectedCallback() {
@@ -303,6 +310,19 @@ class ChatPanel extends LitElement {
               </div>
             `;
           })}
+          ${this.isTyping ? html`
+            <div style="display:flex;align-items:center;gap:6px;padding:4px 8px">
+              <div style="display:flex;gap:3px;align-items:center">
+                <span style="width:6px;height:6px;background:#9ca3af;border-radius:50%;
+                  animation:bounce 1s infinite 0s;display:inline-block"></span>
+                <span style="width:6px;height:6px;background:#9ca3af;border-radius:50%;
+                  animation:bounce 1s infinite 0.2s;display:inline-block"></span>
+                <span style="width:6px;height:6px;background:#9ca3af;border-radius:50%;
+                  animation:bounce 1s infinite 0.4s;display:inline-block"></span>
+              </div>
+              <span style="font-size:0.75rem;color:#9ca3af">typing...</span>
+            </div>
+          ` : ''}
         </div>
 
         <div class="input-area">
@@ -312,7 +332,12 @@ class ChatPanel extends LitElement {
             placeholder=${this.currentUser ? 'Type a message...' : 'Login to chat'}
             .value=${this.newMessage}
             ?disabled=${!this.currentUser}
-            @input=${(e) => this.newMessage = e.target.value}
+            @input=${(e) => {
+              this.newMessage = e.target.value;
+              this.isTyping = true;
+              clearTimeout(this._typingTimeout);
+              this._typingTimeout = setTimeout(() => { this.isTyping = false; }, 1500);
+            }}
             @keypress=${(e) => e.key === 'Enter' && this.sendMessage()}
           />
           <button @click=${this.sendMessage} class="send-btn" ?disabled=${!this.currentUser}>
