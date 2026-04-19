@@ -11,33 +11,106 @@ class ItemGrid extends LitElement {
   };
 
   static styles = css`
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
-      gap: 20px;
-    }
-    .card {
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      overflow: hidden;
-      background: white;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-    
-    .card:hover {
-      transform: scale(1.02);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    :host { display: block; }
+    .search-wrap {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 12px;
     }
     .search-input {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 20px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      font-size: 1rem;
+      flex: 1;
+      padding: 12px 16px;
+      border: 1px solid #e8e4de;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-family: 'Inter', sans-serif;
+      background: #fff;
+      color: #1a1a1a;
+      transition: border-color 0.15s;
     }
-  `; 
+    .search-input:focus {
+      outline: none;
+      border-color: #c9a96e;
+    }
+    .pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 32px;
+    }
+    .pill {
+      padding: 6px 16px;
+      border-radius: 9999px;
+      border: 1px solid #e8e4de;
+      background: #fff;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      color: #6b6b6b;
+    }
+    .pill:hover { border-color: #c9a96e; color: #1a1a1a; }
+    .pill.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+      gap: 24px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+      transition: box-shadow 0.2s, transform 0.2s;
+      border: 1px solid #f0eeea;
+    }
+    .card:hover {
+      box-shadow: 0 8px 32px rgba(0,0,0,0.11);
+      transform: translateY(-3px);
+    }
+    .card-img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      display: block;
+    }
+    .card-body { padding: 16px 18px 20px; }
+    .card-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+    .card-price {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 4px;
+    }
+    .card-seller {
+      font-size: 0.78rem;
+      color: #6b6b6b;
+      margin-bottom: 8px;
+    }
+    .card-meta {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .tag {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+  `;
 
   constructor() {
     super();
@@ -45,7 +118,7 @@ class ItemGrid extends LitElement {
     this.isLoading = true;
     this.searchTerm = '';
     this.filteredItems = [];
-    this.selectedCategory = '';
+    this.selectedCategory = 'All';
   }
 
   // firstUpdated fires after first render, when all attributes are guaranteed set
@@ -125,62 +198,56 @@ class ItemGrid extends LitElement {
           @input=${this.handleSearch}
         />
 
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">
-          ${['All','Comics','Coins','Cards','Art','Toys','Other'].map(cat => html`
-            <button @click=${() => this.filterByCategory(cat)}
-              style="padding:6px 14px;border-radius:9999px;border:none;cursor:pointer;font-size:0.875rem;
-                background:${this.selectedCategory === cat ? '#3b82f6' : '#f3f4f6'};
-                color:${this.selectedCategory === cat ? 'white' : '#374151'};
-                font-weight:${this.selectedCategory === cat ? '600' : '400'}">
+        <div class="pills">
+          ${['All','Comics & Cards','Antique Furniture','Jewelry','Art & Memorabilia','Toys','Literature','Luxury Experience','Other'].map(cat => html`
+            <button class="pill ${this.selectedCategory === cat ? 'active' : ''}"
+              @click=${() => this.filterByCategory(cat)}>
               ${cat}
             </button>
           `)}
         </div>
 
         ${this.filteredItems.length === 0 ? html`
-          <div style="text-align:center;padding:4rem;color:#6b7280">
-            <div style="font-size:3rem">🔍</div>
-            <h3 style="font-size:1.25rem;font-weight:700;margin:12px 0 6px">No items found</h3>
-            <p style="color:#9ca3af">${this.searchTerm ? `No results for "${this.searchTerm}" — try a different search` : 'Check back soon for new listings!'}</p>
+          <div style="text-align:center;padding:5rem 2rem">
+            <div style="font-size:3rem;margin-bottom:16px">🔍</div>
+            <h3 style="font-family:'Playfair Display',serif;font-size:1.4rem;color:#1a1a1a;margin-bottom:8px">
+              Nothing here yet
+            </h3>
+            <p style="color:#6b6b6b;font-size:0.9rem">
+              ${this.searchTerm ? `No results for "${this.searchTerm}"` : 'Check back soon for new listings'}
+            </p>
           </div>
-                  ` : html`
+          ` : html`
           <div class="grid">
             ${this.filteredItems.map(item => html`
               <div class="card" @click=${() => this.viewItem(item.id)}>
-                <img src="${item.image}" alt="${item.name}"
-                  style="width:100%; height:200px; object-fit:cover;"
-                  onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'" />
-                <div style="padding:15px;">
-                  <h3 class="font-bold text-lg">${this.highlightMatch(item.name, this.searchTerm)}</h3>
-                  <p class="text-green-600 font-bold mt-2">KES ${item.price.toLocaleString()}</p>
+                <img class="card-img" src="${item.image}" alt="${item.name}"
+                  onerror="this.src='https://placehold.co/300x220?text=No+Image'" />
+                <div class="card-body">
+                  <div class="card-title">${this.highlightMatch(item.name, this.searchTerm)}</div>
+                  <div class="card-price">KES ${item.price.toLocaleString()}</div>
                   ${item.highestOffer ? html`
-                    <p class="text-sm text-orange-500">Highest offer: KES ${item.highestOffer.toLocaleString()}</p>
+                    <div style="font-size:0.78rem;color:#c9a96e;font-weight:500;margin-bottom:2px">
+                      Offer: KES ${item.highestOffer.toLocaleString()}
+                    </div>
                   ` : ''}
-                  
-                  <p class="text-sm text-gray-500 mt-1">
-                    ${item.sellerName}
-                    ${item.sellerAvgRating ? html`<span style="color:#f59e0b;margin-left:4px">⭐ ${item.sellerAvgRating}</span>` : ''}
-                  </p>
-
-                  ${item.condition ? html`
-                    <span style="font-size:0.7rem;background:#ede9fe;color:#5b21b6;padding:2px 6px;border-radius:9999px;margin-right:4px">
-                      ${item.condition}
-                    </span>
-                  ` : ''}
-                  ${item.category && item.category !== 'Other' ? html`
-                    <span style="font-size:0.7rem;background:#e0f2fe;color:#0369a1;padding:2px 6px;border-radius:9999px">
-                      ${item.category}
-                    </span>
-                  ` : ''}
-                  ${item.paymentStatus === 'paid' ? html`
-                    <span style="font-size:0.75rem;background:#d1fae5;color:#065f46;padding:2px 7px;border-radius:9999px">
-                      🟢 Payment Confirmed
-                    </span>
-                  ` : item.highestOffer ? html`
-                    <span style="font-size:0.75rem;background:#fef9c3;color:#854d0e;padding:2px 7px;border-radius:9999px">
-                      🟡 Offer Pending
-                    </span>
-                  ` : ''}
+                  <div class="card-seller">
+                    by ${item.sellerName}
+                    ${item.sellerAvgRating ? html`· ⭐ ${item.sellerAvgRating}` : ''}
+                  </div>
+                  <div class="card-meta">
+                    ${item.condition ? html`
+                      <span class="tag" style="background:#f0ebff;color:#6b21a8">${item.condition}</span>
+                    ` : ''}
+                    ${item.category ? html`
+                      <span class="tag" style="background:#fdf3e0;color:#92610a">${item.category}</span>
+                    ` : ''}
+                    ${item.paymentStatus === 'paid' ? html`
+                      <span class="tag" style="background:#e6f4ec;color:#2e7d52">Confirmed</span>
+                    ` : item.highestOffer ? html`
+                      <span class="tag" style="background:#fef9c3;color:#854d0e">Offer Pending</span>
+                    ` : ''}
+                  </div>
                 </div>
               </div>
             `)}

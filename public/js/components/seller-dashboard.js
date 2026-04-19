@@ -21,122 +21,165 @@ class SellerDashboard extends LitElement {
   };
 
   static styles = css`
-    .dashboard {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
+    :host { display: block; }
+    .dashboard { max-width: 900px; margin: 0 auto; }
     .header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
+      align-items: flex-start;
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid #e8e4de;
     }
+    .header h1 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.75rem;
+      color: #1a1a1a;
+      margin-bottom: 4px;
+    }
+    .header p { font-size: 0.875rem; color: #6b6b6b; }
     .btn-primary {
-      background: #3b82f6;
+      background: #1a1a1a;
       color: white;
-      padding: 10px 20px;
+      padding: 10px 22px;
       border: none;
       border-radius: 8px;
       cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: opacity 0.15s;
     }
+    .btn-primary:hover { opacity: 0.85; }
     .btn-danger {
-      background: #ef4444;
-      color: white;
-      padding: 6px 12px;
-      border: none;
-      border-radius: 5px;
+      background: transparent;
+      color: #c0392b;
+      padding: 6px 14px;
+      border: 1px solid #c0392b;
+      border-radius: 6px;
       cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 500;
     }
     .btn-success {
-      background: #10b981;
+      background: #2e7d52;
       color: white;
-      padding: 6px 12px;
+      padding: 6px 14px;
       border: none;
-      border-radius: 5px;
+      border-radius: 6px;
       cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 500;
     }
+    .tab-bar {
+      display: flex;
+      gap: 0;
+      margin-bottom: 28px;
+      border-bottom: 1px solid #e8e4de;
+    }
+    .tab {
+      padding: 10px 24px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.875rem;
+      background: none;
+      color: #6b6b6b;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: all 0.15s;
+    }
+    .tab.active { color: #1a1a1a; border-bottom-color: #c9a96e; }
     .item-card {
       background: white;
-      border-radius: 8px;
+      border-radius: 10px;
       padding: 16px;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
       display: flex;
       gap: 16px;
-      align-items: center;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      align-items: flex-start;
+      border: 1px solid #f0eeea;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.05);
     }
     .item-image {
       width: 80px;
       height: 80px;
       object-fit: cover;
       border-radius: 8px;
+      flex-shrink: 0;
     }
-    .item-info {
-      flex: 1;
+    .item-info { flex: 1; min-width: 0; }
+    .item-info h3 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 2px;
+      color: #1a1a1a;
     }
-    .item-actions {
-      display: flex;
-      gap: 8px;
-    }
+    .item-actions { display: flex; gap: 8px; flex-shrink: 0; align-items: center; }
     .form-container {
       background: white;
-      padding: 24px;
-      border-radius: 8px;
+      padding: 28px;
+      border-radius: 12px;
       margin-bottom: 24px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border: 1px solid #e8e4de;
     }
-    .form-group {
-      margin-bottom: 16px;
-    }
+    .form-group { margin-bottom: 16px; }
     .form-group label {
       display: block;
-      margin-bottom: 8px;
-      font-weight: 500;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #6b6b6b;
+      margin-bottom: 6px;
     }
     .form-group input,
-    .form-group textarea {
+    .form-group textarea,
+    .form-group select {
       width: 100%;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
+      padding: 10px 14px;
+      border: 1px solid #e8e4de;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-family: 'Inter', sans-serif;
+      background: #faf9f7;
+      color: #1a1a1a;
+      transition: border-color 0.15s;
     }
-    .error {
-      color: red;
-      margin-top: 8px;
-    }
-    .success {
-      color: green;
-      margin-top: 8px;
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #c9a96e;
     }
     .badge {
-      padding: 4px 8px;
+      display: inline-block;
+      padding: 2px 8px;
       border-radius: 4px;
-      font-size: 12px;
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
     }
-    .badge-paid {
-      background: #d1fae5;
-      color: #065f46;
-    }
-    .badge-active {
-      background: #dbeafe;
-      color: #1e40af;
-    }
+    .badge-paid   { background: #e6f4ec; color: #2e7d52; }
+    .badge-active { background: #fdf3e0; color: #92610a; }
+    .error   { color: #c0392b; font-size: 0.875rem; margin: 8px 0; }
+    .success { color: #2e7d52; font-size: 0.875rem; margin: 8px 0; }
     .empty-state {
       text-align: center;
-      padding: 48px;
-      color: #6b7280;
+      padding: 56px 24px;
+      color: #6b6b6b;
     }
-
+    .empty-state h3 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.25rem;
+      color: #1a1a1a;
+      margin: 12px 0 6px;
+    }
     @media (max-width: 640px) {
-    .item-card {
-      flex-direction: column;
-      align-items: flex-start;
+      .item-card { flex-direction: column; }
+      .item-actions { width: 100%; justify-content: flex-end; }
     }
-    .item-actions {
-      width: 100%;
-      justify-content: flex-end;
-    }
-  }
   `;
 
   constructor() {
@@ -413,30 +456,27 @@ class SellerDashboard extends LitElement {
       <div class="dashboard">
         <div class="header">
           <div>
-            <button @click=${() => window.location.href='/'} style="color:#3b82f6;background:none;border:none;cursor:pointer;margin-bottom:8px">
-              ← Back to Marketplace
+            <button @click=${() => window.location.href='/'} 
+              style="background:none;border:none;cursor:pointer;color:#6b6b6b;font-size:0.875rem;margin-bottom:12px;padding:0;display:flex;align-items:center;gap:4px">
+              ← Marketplace
             </button>
-            <h1 class="text-2xl font-bold">My Listings</h1>
-            <p class="text-gray-600">Welcome, ${this.currentUser?.name}</p>
+            <h1>My Dashboard</h1>
+            <p>Welcome back, ${this.currentUser?.name}</p>
           </div>
           <button @click=${() => this.showCreateForm = !this.showCreateForm} class="btn-primary">
             ${this.showCreateForm ? 'Cancel' : '+ New Listing'}
           </button>
-        </div>
+        </div>        
 
         <!-- Tab bar -->
-        <div style="display:flex;gap:0;margin-bottom:24px;border-bottom:2px solid #e5e7eb;">
-          <button @click=${() => this.activeTab = 'listings'}
-            style="padding:10px 24px;border:none;cursor:pointer;font-weight:600;background:none;
-              border-bottom:${this.activeTab === 'listings' ? '2px solid #3b82f6' : 'none'};
-              color:${this.activeTab === 'listings' ? '#3b82f6' : '#6b7280'}">
+        <div class="tab-bar">
+          <button class="tab ${this.activeTab === 'listings' ? 'active' : ''}"
+            @click=${() => this.activeTab = 'listings'}>
             My Listings
           </button>
-          <button @click=${() => { this.activeTab = 'purchases'; this.loadPurchases(); }}
-            style="padding:10px 24px;border:none;cursor:pointer;font-weight:600;background:none;
-              border-bottom:${this.activeTab === 'purchases' ? '2px solid #3b82f6' : 'none'};
-              color:${this.activeTab === 'purchases' ? '#3b82f6' : '#6b7280'}">
-            My Purchases
+          <button class="tab ${this.activeTab === 'purchases' ? 'active' : ''}"
+            @click=${() => { this.activeTab = 'purchases'; this.loadPurchases(); }}>
+            Purchases
           </button>
         </div>
 

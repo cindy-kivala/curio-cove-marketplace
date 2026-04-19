@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <title>CurioCove - Marketplace</title>
     <link rel="stylesheet" href="/css/styles.css" />
     <script type="importmap">
@@ -18,10 +20,19 @@
     <script type="module" src="/js/components/item-grid.js"></script>
     <script type="module" src="/js/components/nav-bar.js"></script>
 </head>
-<body class="bg-gray-100">
-    <nav-bar api-base="<%= apiBase %>" current-user="<%= user ? JSON.stringify(user) : '' %>"></nav-bar>
-    <main class="max-w-7xl mx-auto px-4 py-8">
-        <item-grid api-base="<%= apiBase %>"></item-grid>
-    </main>
+<body style="background:var(--bg, #faf9f7)">
+  <nav-bar api-base="<%= apiBase %>" current-user="<%= user ? JSON.stringify(user) : '' %>"></nav-bar>
+  
+  <div class="hero">
+    <p style="font-size:0.8rem;letter-spacing:0.15em;text-transform:uppercase;color:#c9a96e;margin-bottom:12px;font-weight:600">
+      Rare · Curated · Collectible
+    </p>
+    <h1>The Collector's<br>Marketplace</h1>
+    <p>Discover rare items. Make offers. Trade with confidence.</p>
+  </div>
+
+  <main>
+    <item-grid api-base="<%= apiBase %>"></item-grid>
+  </main>
 </body>
 </html>
