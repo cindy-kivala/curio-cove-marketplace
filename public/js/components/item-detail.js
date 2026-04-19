@@ -150,8 +150,8 @@ class ItemDetail extends LitElement {
     this.success = '';
     
     try {
-      await fetch(`${this.apiBase}/messages`, {
-        method:  'POST',
+      const msgResponse = await fetch(`${this.apiBase}/messages`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           itemId:        this.itemId,
@@ -165,8 +165,6 @@ class ItemDetail extends LitElement {
         })
       });
 
-      // Update highest offer on item
-      // Update highest offer on item
       const putResponse = await fetch(`${this.apiBase}/items/${this.itemId}`, {
         method:  'PUT',
         headers: { 'Content-Type': 'application/json' },

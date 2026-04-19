@@ -146,7 +146,9 @@ class SellerDashboard extends LitElement {
       name: '',
       description: '',
       price: '',
-      image: ''
+      image: '',
+      condition: 'Good',
+      category: 'Other'
     };
     this.error = '';
     this.success = '';
@@ -222,7 +224,9 @@ class SellerDashboard extends LitElement {
           price: parseFloat(this.newItem.price),
           image: this.newItem.image || 'https://via.placeholder.com/400x300?text=CurioCove',
           sellerId: this.currentUser.id,
-          sellerName: this.currentUser.name
+          sellerName: this.currentUser.name,
+          condition: this.newItem.condition || 'Good',
+          category: this.newItem.category || 'Other'
         })
       });
 
@@ -464,6 +468,33 @@ class SellerDashboard extends LitElement {
                   @load=${(e)  => { e.target.style.display = 'block'; }} />
               ` : ''}
             </div>
+            <div class="form-group">
+              <label>Condition *</label>
+              <select style="width:100%;padding:10px;border:1px solid #ddd;border-radius:5px;"
+                .value=${this.newItem.condition}
+                @change=${(e) => this.newItem = { ...this.newItem, condition: e.target.value }}>
+                <option value="Mint">Mint</option>
+                <option value="Good" selected>Good</option>
+                <option value="Fair">Fair</option>
+                <option value="Poor">Poor</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Category *</label>
+              <select style="width:100%;padding:10px;border:1px solid #ddd;border-radius:5px;"
+                .value=${this.newItem.category}
+                @change=${(e) => this.newItem = { ...this.newItem, category: e.target.value }}>
+                <option value="Comics & Cards">Comics & Cards</option>
+                <option value="Antique Furniture">Antique Furniture</option>
+                <option value="Jewelry">Jewelry</option>
+                <option value="Art & Memorabilia">Art & Memorabilia</option>
+                <option value="Toys">Toys</option>
+                <option value="Literature">Literature</option>
+                <option value="Luxury Experience">Luxury Experience</option>
+                <option value="Other" selected>Other</option>
+              </select>
+            </div>
+
             <button @click=${this.createItem} class="btn-primary" ?disabled=${this.isLoading}>
               ${this.isLoading ? 'Creating...' : 'List Item'}
             </button>
@@ -489,6 +520,14 @@ class SellerDashboard extends LitElement {
               <h3 class="font-bold text-lg">${item.name}</h3>
               <p class="text-green-600 font-bold">KES ${item.price.toLocaleString()}</p>
               <p class="text-sm text-gray-500">${item.description?.substring(0,100)}...</p>
+              <div style="margin-top:4px;display:flex;gap:4px;flex-wrap:wrap">
+                ${item.condition ? html`
+                  <span class="badge" style="background:#ede9fe;color:#5b21b6">${item.condition}</span>
+                ` : ''}
+                ${item.category ? html`
+                  <span class="badge" style="background:#e0f2fe;color:#0369a1">${item.category}</span>
+                ` : ''}
+              </div>
               <div style="margin-top:8px">
                 ${item.status === 'sold'
                   ? html`<span class="badge" style="background:#f3f4f6;color:#6b7280">Sold</span>`
