@@ -1,0 +1,590 @@
+[
+  {
+    "id": "msg1",
+    "itemId": "1",
+    "senderId": "user2",
+    "senderName": "ToyTrader",
+    "content": "Is this comic still available?",
+    "type": "text",
+    "timestamp": "2026-04-12T10:56:02.346Z",
+    "readBy": [
+      "51c674a6-0f49-438f-9374-159dc9cce8ab",
+      "d57c35a8-5efe-4972-9ded-ba877ba36acb",
+      "36d21ced-6461-4e4c-ab19-df174c823152"
+    ]
+  },
+  {
+    "id": "20cd096d-04df-48d9-b515-d57311c0f9e9",
+    "itemId": "1",
+    "senderId": "user2",
+    "senderName": "ToyTrader",
+    "content": "Offered $450",
+    "type": "offer",
+    "price": 450,
+    "originalPrice": 500,
+    "status": "expired",
+    "timestamp": "2026-04-16T08:17:18.228Z",
+    "readBy": [
+      "51c674a6-0f49-438f-9374-159dc9cce8ab",
+      "d57c35a8-5efe-4972-9ded-ba877ba36acb",
+      "36d21ced-6461-4e4c-ab19-df174c823152"
+    ]
+  },
+  {
+    "id": "24c7dc5e-85e6-4cd3-9de7-9af7a72d89b1",
+    "itemId": "1",
+    "senderId": "user2",
+    "senderName": "ToyTrader",
+    "content": "Hello from CurioCove!",
+    "type": "text",
+    "timestamp": "2026-04-16T08:23:42.501Z",
+    "readBy": [
+      "51c674a6-0f49-438f-9374-159dc9cce8ab",
+      "d57c35a8-5efe-4972-9ded-ba877ba36acb",
+      "36d21ced-6461-4e4c-ab19-df174c823152"
+    ]
+  },
+  {
+    "id": "2db55ca9-4b19-4084-b62e-673277887752",
+    "itemId": "1",
+    "senderId": "user2",
+    "senderName": "ToyTrader",
+    "content": "I offer $450",
+    "type": "text",
+    "timestamp": "2026-04-16T08:25:58.206Z",
+    "readBy": [
+      "51c674a6-0f49-438f-9374-159dc9cce8ab",
+      "d57c35a8-5efe-4972-9ded-ba877ba36acb",
+      "36d21ced-6461-4e4c-ab19-df174c823152"
+    ]
+  },
+  {
+    "id": "e9007ffa-5f41-42d2-baa7-51b700c63a0e",
+    "itemId": "1",
+    "senderId": "user2",
+    "senderName": "ToyTrader",
+    "content": "Testing message",
+    "type": "text",
+    "timestamp": "2026-04-17T05:25:54.799Z",
+    "readBy": [
+      "51c674a6-0f49-438f-9374-159dc9cce8ab",
+      "d57c35a8-5efe-4972-9ded-ba877ba36acb",
+      "36d21ced-6461-4e4c-ab19-df174c823152"
+    ]
+  },
+  {
+    "id": "e3779d84-ae61-4bdb-bf44-cf45c29dac01",
+    "itemId": "1",
+    "senderId": "user2",
+    "senderName": "ToyTrader",
+    "content": "Testing time at 08:40",
+    "type": "text",
+    "timestamp": "2026-04-17T05:40:27.847Z",
+    "readBy": [
+      "51c674a6-0f49-438f-9374-159dc9cce8ab",
+      "d57c35a8-5efe-4972-9ded-ba877ba36acb",
+      "36d21ced-6461-4e4c-ab19-df174c823152"
+    ]
+  },
+  {
+    "id": "5e1c4cad-412b-4954-b2f8-bf9535b4c7c0",
+    "itemId": "1",
+    "senderId": "user2",
+    "senderName": "ToyTrader",
+    "content": "Testing time at 08:48",
+    "type": "text",
+    "timestamp": "2026-04-17T05:48:06.731Z",
+    "readBy": [
+      "51c674a6-0f49-438f-9374-159dc9cce8ab",
+      "d57c35a8-5efe-4972-9ded-ba877ba36acb",
+      "36d21ced-6461-4e4c-ab19-df174c823152"
+    ]
+  },
+  {
+    "id": "78fd5edb-7f92-4f1d-9dd4-5edf228d1faa",
+    "itemId": "1",
+    "senderId": "51c674a6-0f49-438f-9374-159dc9cce8ab",
+    "senderName": "PepperAnn",
+    "content": "500",
+    "type": "offer",
+    "timestamp": "2026-04-17T20:16:24.729Z",
+    "readBy": [
+      "d57c35a8-5efe-4972-9ded-ba877ba36acb",
+      "36d21ced-6461-4e4c-ab19-df174c823152"
+    ],
+    "price": 500,
+    "originalPrice": 500,
+    "status": "expired"
+  },
+  {
+    "id": "789bbe50-6f7f-4589-8bc1-6e5bd51a3d79",
+    "itemId": "1",
+    "senderId": "51c674a6-0f49-438f-9374-159dc9cce8ab",
+    "senderName": "PepperAnn",
+    "content": "550",
+    "type": "offer",
+    "timestamp": "2026-04-18T05:03:38.974Z",
+    "readBy": [
+      "d57c35a8-5efe-4972-9ded-ba877ba36acb",
+      "36d21ced-6461-4e4c-ab19-df174c823152"
+    ],
+    "price": 550,
+    "originalPrice": 500,
+    "status": "expired"
+  },
+  {
+    "id": "79517e70-93c1-4c95-9dd4-256b81feeccb",
+    "itemId": "1",
+    "senderId": "51c674a6-0f49-438f-9374-159dc9cce8ab",
+    "senderName": "PepperAnn",
+    "content": "600",
+    "type": "offer",
+    "timestamp": "2026-04-18T05:31:47.499Z",
+    "readBy": [
+      "d57c35a8-5efe-4972-9ded-ba877ba36acb",
+      "36d21ced-6461-4e4c-ab19-df174c823152"
+    ],
+    "price": 600,
+    "originalPrice": 500,
+    "status": "expired"
+  },
+  {
+    "id": "6d6baf6c-62d0-4ca3-8164-0d07efd78965",
+    "itemId": "1",
+    "senderId": "51c674a6-0f49-438f-9374-159dc9cce8ab",
+    "senderName": "PepperAnn",
+    "content": "Is this copy sealed and in mint condition?",
+    "type": "text",
+    "timestamp": "2026-04-18T05:32:25.803Z",
+    "readBy": [
+      "d57c35a8-5efe-4972-9ded-ba877ba36acb",
+      "36d21ced-6461-4e4c-ab19-df174c823152"
+    ]
+  },
+  {
+    "id": "4bae8306-aed8-4125-b776-33bcc299fe78",
+    "itemId": "1",
+    "senderId": "51c674a6-0f49-438f-9374-159dc9cce8ab",
+    "senderName": "PepperAnn",
+    "content": "Do you do deliveries?",
+    "type": "text",
+    "timestamp": "2026-04-18T05:33:24.614Z",
+    "readBy": [
+      "d57c35a8-5efe-4972-9ded-ba877ba36acb",
+      "36d21ced-6461-4e4c-ab19-df174c823152"
+    ]
+  },
+  {
+    "id": "b03a2ae2-f69d-4afb-b588-d2bd854b7519",
+    "itemId": "3",
+    "senderId": "51c674a6-0f49-438f-9374-159dc9cce8ab",
+    "senderName": "PepperAnn",
+    "content": "Do you have it in it's original box?",
+    "type": "text",
+    "timestamp": "2026-04-18T06:54:32.181Z",
+    "readBy": [
+      "36d21ced-6461-4e4c-ab19-df174c823152"
+    ]
+  },
+  {
+    "id": "62745827-8333-45e5-9930-f6a0a635be7c",
+    "itemId": "0df71e29-bd00-4471-a873-ea09020822c4",
+    "senderId": "36d21ced-6461-4e4c-ab19-df174c823152",
+    "senderName": "Clover",
+    "content": "5250",
+    "type": "offer",
+    "timestamp": "2026-04-18T07:37:14.177Z",
+    "readBy": [
+      "51c674a6-0f49-438f-9374-159dc9cce8ab",
+      "d57c35a8-5efe-4972-9ded-ba877ba36acb"
+    ],
+    "price": 5250,
+    "originalPrice": 5000,
+    "status": "accepted"
+  },
+  {
+    "id": "321b08fc-254a-4754-a6fe-87866b8d4c16",
+    "itemId": "0df71e29-bd00-4471-a873-ea09020822c4",
+    "senderId": "36d21ced-6461-4e4c-ab19-df174c823152",
+    "senderName": "Clover",
+    "content": "Does it come with accessories?",
+    "type": "text",
+    "timestamp": "2026-04-18T07:37:38.065Z",
+    "readBy": [
+      "51c674a6-0f49-438f-9374-159dc9cce8ab",
+      "d57c35a8-5efe-4972-9ded-ba877ba36acb"
+    ]
+  },
+  {
+    "id": "5d70b8cd-27bd-4b74-92e6-53ca69b9d171",
+    "itemId": "bb01447c-e004-4eec-9d5c-d421e64daff8",
+    "senderId": "d57c35a8-5efe-4972-9ded-ba877ba36acb",
+    "senderName": "Ansel",
+    "content": "16570",
+    "type": "offer",
+    "timestamp": "2026-04-18T08:39:46.486Z",
+    "readBy": [
+      "36d21ced-6461-4e4c-ab19-df174c823152",
+      "51c674a6-0f49-438f-9374-159dc9cce8ab"
+    ],
+    "price": 16570,
+    "originalPrice": 16500,
+    "status": "rejected"
+  },
+  {
+    "id": "21fdab99-81db-47df-93dc-83925c603e27",
+    "itemId": "bb01447c-e004-4eec-9d5c-d421e64daff8",
+    "senderId": "d57c35a8-5efe-4972-9ded-ba877ba36acb",
+    "senderName": "Ansel",
+    "content": "16600",
+    "type": "offer",
+    "timestamp": "2026-04-18T08:39:56.446Z",
+    "readBy": [
+      "36d21ced-6461-4e4c-ab19-df174c823152",
+      "51c674a6-0f49-438f-9374-159dc9cce8ab"
+    ],
+    "price": 16600,
+    "originalPrice": 16500,
+    "status": "rejected"
+  },
+  {
+    "id": "f80e1e5a-9558-4883-a957-835c27d50fb8",
+    "itemId": "bb01447c-e004-4eec-9d5c-d421e64daff8",
+    "senderId": "d57c35a8-5efe-4972-9ded-ba877ba36acb",
+    "senderName": "Ansel",
+    "content": "Does it come with the lighting fixtures?",
+    "type": "text",
+    "timestamp": "2026-04-18T08:40:27.663Z",
+    "readBy": [
+      "36d21ced-6461-4e4c-ab19-df174c823152",
+      "51c674a6-0f49-438f-9374-159dc9cce8ab"
+    ]
+  },
+  {
+    "id": "771d3068-e298-4bcc-bfa6-4e6b1b1bf6a0",
+    "itemId": "2",
+    "senderId": "d57c35a8-5efe-4972-9ded-ba877ba36acb",
+    "senderName": "Ansel",
+    "content": "155",
+    "type": "offer",
+    "timestamp": "2026-04-18T08:40:54.405Z",
+    "readBy": [
+      "36d21ced-6461-4e4c-ab19-df174c823152"
+    ],
+    "price": 155,
+    "originalPrice": 150,
+    "status": "expired"
+  },
+  {
+    "id": "af9363bc-4a0e-4d0f-95cd-7a27b98b3d3b",
+    "itemId": "2",
+    "senderId": "d57c35a8-5efe-4972-9ded-ba877ba36acb",
+    "senderName": "Ansel",
+    "content": "Can you share some pictures of it",
+    "type": "text",
+    "timestamp": "2026-04-18T08:41:30.417Z",
+    "readBy": [
+      "36d21ced-6461-4e4c-ab19-df174c823152"
+    ]
+  },
+  {
+    "id": "3995354c-f5b0-45e7-b823-12473f522b1a",
+    "itemId": "0df71e29-bd00-4471-a873-ea09020822c4",
+    "senderId": "51c674a6-0f49-438f-9374-159dc9cce8ab",
+    "senderName": "PepperAnn",
+    "content": "Yes it comes with a hair brush and a clutch",
+    "type": "text",
+    "timestamp": "2026-04-18T10:32:54.478Z",
+    "readBy": [
+      "d57c35a8-5efe-4972-9ded-ba877ba36acb",
+      "36d21ced-6461-4e4c-ab19-df174c823152"
+    ]
+  },
+  {
+    "id": "12c660b0-554d-4989-8fda-44f3b0d6881b",
+    "itemId": "bb01447c-e004-4eec-9d5c-d421e64daff8",
+    "senderId": "51c674a6-0f49-438f-9374-159dc9cce8ab",
+    "senderName": "PepperAnn",
+    "content": "Yes it does, however you will have to connect them yourself",
+    "type": "text",
+    "timestamp": "2026-04-18T10:34:44.161Z",
+    "readBy": [
+      "36d21ced-6461-4e4c-ab19-df174c823152",
+      "d57c35a8-5efe-4972-9ded-ba877ba36acb"
+    ]
+  },
+  {
+    "id": "f0005595-e84a-4f9d-923f-6c92b63dbb11",
+    "itemId": "bb01447c-e004-4eec-9d5c-d421e64daff8",
+    "senderId": "36d21ced-6461-4e4c-ab19-df174c823152",
+    "senderName": "Clover",
+    "content": "Are delivery fees factored in the cost?",
+    "type": "text",
+    "timestamp": "2026-04-18T10:36:04.897Z",
+    "readBy": [
+      "d57c35a8-5efe-4972-9ded-ba877ba36acb",
+      "51c674a6-0f49-438f-9374-159dc9cce8ab"
+    ]
+  },
+  {
+    "id": "0b874090-b10b-444e-a8bf-836e0b5ebfb6",
+    "itemId": "bb01447c-e004-4eec-9d5c-d421e64daff8",
+    "senderId": "51c674a6-0f49-438f-9374-159dc9cce8ab",
+    "senderName": "PepperAnn",
+    "content": "No. Delivery fees are calculated based on your location and its distance from CBD as well as the delivery method used and time frame",
+    "type": "text",
+    "timestamp": "2026-04-18T11:26:35.791Z",
+    "readBy": [
+      "36d21ced-6461-4e4c-ab19-df174c823152"
+    ]
+  },
+  {
+    "id": "aef72814-f66b-4e53-898d-024e9fe3eb71",
+    "itemId": "1",
+    "senderId": "d57c35a8-5efe-4972-9ded-ba877ba36acb",
+    "senderName": "Ansel",
+    "content": "650",
+    "type": "offer",
+    "timestamp": "2026-04-18T11:27:31.408Z",
+    "readBy": [
+      "36d21ced-6461-4e4c-ab19-df174c823152"
+    ],
+    "price": 650,
+    "originalPrice": 500,
+    "status": "expired"
+  },
+  {
+    "id": "8abe9216-ee92-4909-b076-099810a116d7",
+    "itemId": "1",
+    "senderId": "d57c35a8-5efe-4972-9ded-ba877ba36acb",
+    "senderName": "Ansel",
+    "content": "Do you have any other copies?",
+    "type": "text",
+    "timestamp": "2026-04-18T11:28:17.855Z",
+    "readBy": [
+      "36d21ced-6461-4e4c-ab19-df174c823152"
+    ]
+  },
+  {
+    "id": "560a7849-18d3-4bac-aeda-3da4a20e965b",
+    "itemId": "bb01447c-e004-4eec-9d5c-d421e64daff8",
+    "senderId": "d57c35a8-5efe-4972-9ded-ba877ba36acb",
+    "senderName": "Ansel",
+    "content": "16620",
+    "type": "offer",
+    "timestamp": "2026-04-18T12:09:35.845Z",
+    "readBy": [
+      "51c674a6-0f49-438f-9374-159dc9cce8ab"
+    ],
+    "price": 16620,
+    "originalPrice": 16500,
+    "status": "accepted"
+  },
+  {
+    "id": "c1a06395-8b6f-43c0-a9ca-2f6785fdcefc",
+    "itemId": "bb01447c-e004-4eec-9d5c-d421e64daff8",
+    "senderId": "67c0ecfb-bd04-4aed-992c-494881585c1d",
+    "senderName": "Nicky Little",
+    "content": "17000",
+    "type": "offer",
+    "timestamp": "2026-04-18T12:28:15.156Z",
+    "readBy": [],
+    "price": 17000,
+    "originalPrice": 16620,
+    "status": "accepted"
+  },
+  {
+    "id": "d233198d-e3c0-4a32-8829-cd67a624327e",
+    "itemId": "0df71e29-bd00-4471-a873-ea09020822c4",
+    "senderId": "36d21ced-6461-4e4c-ab19-df174c823152",
+    "senderName": "Clover",
+    "content": "5400",
+    "type": "offer",
+    "timestamp": "2026-04-18T12:48:54.594Z",
+    "readBy": [
+      "51c674a6-0f49-438f-9374-159dc9cce8ab"
+    ],
+    "price": 5400,
+    "originalPrice": 5250,
+    "status": "accepted"
+  },
+  {
+    "id": "7d722604-13e9-479a-8f33-89b17ebf16c3",
+    "itemId": "0df71e29-bd00-4471-a873-ea09020822c4",
+    "senderId": "36d21ced-6461-4e4c-ab19-df174c823152",
+    "senderName": "Clover",
+    "content": "5500",
+    "type": "offer",
+    "timestamp": "2026-04-18T19:05:52.317Z",
+    "readBy": [
+      "51c674a6-0f49-438f-9374-159dc9cce8ab"
+    ],
+    "price": 5500,
+    "originalPrice": 5400,
+    "status": "accepted"
+  },
+  {
+    "id": "aa460124-2342-490a-8cd2-7928ac3436c6",
+    "itemId": "0df71e29-bd00-4471-a873-ea09020822c4",
+    "senderId": "36d21ced-6461-4e4c-ab19-df174c823152",
+    "senderName": "Clover",
+    "content": "Interested",
+    "type": "text",
+    "timestamp": "2026-04-18T19:06:10.101Z",
+    "readBy": [
+      "51c674a6-0f49-438f-9374-159dc9cce8ab"
+    ]
+  },
+  {
+    "id": "51510569-6821-4694-8e12-8c08db037cba",
+    "itemId": "1",
+    "senderId": "67c0ecfb-bd04-4aed-992c-494881585c1d",
+    "senderName": "Nicky Little",
+    "content": "700",
+    "type": "offer",
+    "timestamp": "2026-04-18T19:25:38.033Z",
+    "readBy": [],
+    "price": 700,
+    "originalPrice": 500,
+    "status": "pending"
+  },
+  {
+    "id": "190c8444-42ef-482e-b5ac-6b30ffefc105",
+    "itemId": "3",
+    "senderId": "36d21ced-6461-4e4c-ab19-df174c823152",
+    "senderName": "Clover",
+    "content": "1250",
+    "type": "offer",
+    "timestamp": "2026-04-18T19:51:07.200Z",
+    "readBy": [
+      "51c674a6-0f49-438f-9374-159dc9cce8ab"
+    ],
+    "price": 1250,
+    "originalPrice": 1200,
+    "status": "pending"
+  },
+  {
+    "id": "8323c50c-35f2-4509-837f-1101cfa1c0e7",
+    "itemId": "3",
+    "senderId": "36d21ced-6461-4e4c-ab19-df174c823152",
+    "senderName": "Clover",
+    "content": "1300",
+    "type": "offer",
+    "timestamp": "2026-04-19T08:10:43.645Z",
+    "readBy": [
+      "51c674a6-0f49-438f-9374-159dc9cce8ab"
+    ],
+    "price": 1300,
+    "originalPrice": 1200,
+    "status": "pending"
+  },
+  {
+    "id": "a521ed02-069a-47e1-9683-dd1c090aceb6",
+    "itemId": "3",
+    "senderId": "36d21ced-6461-4e4c-ab19-df174c823152",
+    "senderName": "Clover",
+    "content": "Is it in mint condition?",
+    "type": "text",
+    "timestamp": "2026-04-19T08:11:17.325Z",
+    "readBy": [
+      "51c674a6-0f49-438f-9374-159dc9cce8ab"
+    ]
+  },
+  {
+    "id": "4471dd8c-29bd-45a1-8a39-750629b93cd6",
+    "itemId": "2",
+    "senderId": "36d21ced-6461-4e4c-ab19-df174c823152",
+    "senderName": "Clover",
+    "content": "160",
+    "type": "offer",
+    "timestamp": "2026-04-19T12:11:49.889Z",
+    "readBy": [],
+    "price": 160,
+    "originalPrice": 150,
+    "status": "pending"
+  },
+  {
+    "id": "9b99e986-821c-4564-891e-dd132bebd2d1",
+    "itemId": "2",
+    "senderId": "36d21ced-6461-4e4c-ab19-df174c823152",
+    "senderName": "Clover",
+    "content": "Typing bubble test",
+    "type": "text",
+    "timestamp": "2026-04-19T12:12:18.447Z",
+    "readBy": []
+  },
+  {
+    "id": "ab53a5aa-126d-44ec-98c0-286027811b9a",
+    "itemId": "118",
+    "senderId": "36d21ced-6461-4e4c-ab19-df174c823152",
+    "senderName": "Clover",
+    "content": "Is it insured?",
+    "type": "text",
+    "timestamp": "2026-04-19T12:37:41.445Z",
+    "readBy": [
+      "51c674a6-0f49-438f-9374-159dc9cce8ab"
+    ]
+  },
+  {
+    "id": "28ff0892-77ba-4382-b671-7757cd472c27",
+    "itemId": "118",
+    "senderId": "51c674a6-0f49-438f-9374-159dc9cce8ab",
+    "senderName": "PepperAnn",
+    "content": "980250",
+    "type": "offer",
+    "timestamp": "2026-04-19T12:38:47.791Z",
+    "readBy": [],
+    "price": 980250,
+    "originalPrice": 950000,
+    "status": "pending"
+  },
+  {
+    "id": "765ad545-dcc7-43b3-8cf4-494fcb59b3e7",
+    "itemId": "119",
+    "senderId": "d57c35a8-5efe-4972-9ded-ba877ba36acb",
+    "senderName": "Ansel",
+    "content": "67000",
+    "type": "offer",
+    "timestamp": "2026-04-19T13:36:34.507Z",
+    "readBy": [],
+    "price": 67000,
+    "originalPrice": 60000,
+    "status": "pending"
+  },
+  {
+    "id": "17792c53-9bd2-4645-8563-1878ed60c9f6",
+    "itemId": "116",
+    "senderId": "36d21ced-6461-4e4c-ab19-df174c823152",
+    "senderName": "Clover",
+    "content": "Travel to and fro is provided as well",
+    "type": "text",
+    "timestamp": "2026-04-19T17:00:45.332Z",
+    "readBy": []
+  },
+  {
+    "id": "328ed915-1839-44ce-be04-403e968e2df0",
+    "itemId": "103",
+    "senderId": "36d21ced-6461-4e4c-ab19-df174c823152",
+    "senderName": "Clover",
+    "content": "50000",
+    "type": "offer",
+    "timestamp": "2026-04-19T17:01:22.412Z",
+    "readBy": [],
+    "price": 50000,
+    "originalPrice": 45000,
+    "status": "pending"
+  },
+  {
+    "id": "da57754b-02d7-4353-b934-da35eb1ef4e3",
+    "itemId": "103",
+    "senderId": "36d21ced-6461-4e4c-ab19-df174c823152",
+    "senderName": "Clover",
+    "content": "52000",
+    "type": "offer",
+    "timestamp": "2026-04-19T17:01:39.809Z",
+    "readBy": [],
+    "price": 52000,
+    "originalPrice": 45000,
+    "status": "pending"
+  }
+]

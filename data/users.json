@@ -1,0 +1,74 @@
+[
+  {
+    "id": "user1",
+    "name": "ComicCollector",
+    "password": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+    "createdAt": "2026-04-16T10:00:00.000Z",
+    "lastLogin": "2026-04-16T10:00:00.000Z"
+  },
+  {
+    "id": "user2",
+    "name": "ToyTrader",
+    "password": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+    "createdAt": "2026-04-16T10:00:00.000Z",
+    "lastLogin": "2026-04-16T10:00:00.000Z"
+  },
+  {
+    "id": "user3",
+    "name": "CardMaster",
+    "password": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+    "createdAt": "2026-04-16T10:00:00.000Z",
+    "lastLogin": "2026-04-16T10:00:00.000Z"
+  },
+  {
+    "id": "b690cc51-33f2-47aa-a1fd-f1ad408827dd",
+    "name": "TestUser",
+    "password": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+    "createdAt": "2026-04-17T07:07:38.245Z",
+    "lastLogin": "2026-04-17T07:07:38.245Z"
+  },
+  {
+    "id": "51c674a6-0f49-438f-9374-159dc9cce8ab",
+    "name": "PepperAnn",
+    "password": "ac3c9135ba106de72ce33feb03b396e885607046a56dd968737bd18f3bf4fc7d",
+    "createdAt": "2026-04-17T19:22:46.496Z",
+    "lastLogin": "2026-04-19T12:38:19.467Z",
+    "ratings": [
+      {
+        "rating": 3,
+        "buyerId": "36d21ced-6461-4e4c-ab19-df174c823152",
+        "itemId": "0df71e29-bd00-4471-a873-ea09020822c4",
+        "createdAt": "2026-04-19T11:32:21.253Z"
+      }
+    ],
+    "avgRating": 3
+  },
+  {
+    "id": "36d21ced-6461-4e4c-ab19-df174c823152",
+    "name": "Clover",
+    "password": "ef14fc39813454303c4ab33640b3e9554f1ed75c8c882172046bf56017fe0210",
+    "createdAt": "2026-04-18T07:36:54.308Z",
+    "lastLogin": "2026-04-19T16:56:25.894Z"
+  },
+  {
+    "id": "d57c35a8-5efe-4972-9ded-ba877ba36acb",
+    "name": "Ansel",
+    "password": "12a7aa0efa2b1a7105350ee6a60146ef6ba5e1bdc17c12c6f5f7df4ccd13ba70",
+    "createdAt": "2026-04-18T08:39:27.756Z",
+    "lastLogin": "2026-04-19T13:30:31.692Z"
+  },
+  {
+    "id": "05f41da6-53b5-48e8-a754-ea3faf4d2c84",
+    "name": "Ansen",
+    "password": "12a7aa0efa2b1a7105350ee6a60146ef6ba5e1bdc17c12c6f5f7df4ccd13ba70",
+    "createdAt": "2026-04-18T10:07:55.414Z",
+    "lastLogin": "2026-04-18T10:07:55.414Z"
+  },
+  {
+    "id": "67c0ecfb-bd04-4aed-992c-494881585c1d",
+    "name": "Nicky Little",
+    "password": "472be8af850b0e03000a1bc97f1aa06224766cec5eba3e67fb4e6604d606f146",
+    "createdAt": "2026-04-18T12:28:01.062Z",
+    "lastLogin": "2026-04-18T19:14:58.746Z"
+  }
+]
