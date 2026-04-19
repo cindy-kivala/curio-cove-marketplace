@@ -49,17 +49,14 @@ Use these accounts to explore the full user journey:
 ### Marketplace
 ![Homepage](screenshots/homepage.png) 
 ### Seller Dashboard
-![Seller-Dashboard] (screenshots/seller-dashboard.png)
+![Seller-Dashboard](screenshots/seller-dashboard.png)
 ### Offer Review
-![Offer-Review] (screenshots/offer-review.png)
+![Offer-Review](screenshots/offer-review.png)
 ### Real Time Chats
-![Seller-Chat] (screenshots/seller-chat.png)
-![Buyer-Response] (screenshots/buyer-chat-response.png)
+![Seller-Chat](screenshots/seller-chat.png)
+![Buyer-Response](screenshots/buyer-chat-response.png)
 ### Seller Rating
-![Buyer-Rates-Seller-Experience/Product] (screenshots/seller-product-experience-rating.png)
-
-> Item detail — offer form, chat, offer history  
-> Seller dashboard — listings, offer management, purchases, ratings
+![Buyer-Rates-Seller-Experience/Product](screenshots/seller-product-experience-rating.png)
 
 ---
 
