@@ -6,7 +6,8 @@ class ItemGrid extends LitElement {
     items: { type: Array },
     isLoading: { type: Boolean },
     searchTerm: { type: String },
-    filteredItems: { type: Array }
+    filteredItems: { type: Array },
+    selectedCategory: { type: String }
   };
 
   static styles = css`
@@ -44,6 +45,7 @@ class ItemGrid extends LitElement {
     this.isLoading = true;
     this.searchTerm = '';
     this.filteredItems = [];
+    this.selectedCategory = '';
   }
 
   // firstUpdated fires after first render, when all attributes are guaranteed set
@@ -78,10 +80,12 @@ class ItemGrid extends LitElement {
   handleSearch(e) {
     const term = e.target.value.toLowerCase();
     this.searchTerm    = term;
-    this.filteredItems = this.items.filter(item => 
-      item.name.toLowerCase().includes(term) ||
-      item.description.toLowerCase().includes(term)
-    );
+    this.filteredItems = this.items.filter(item => {
+      const matchesSearch = item.name.toLowerCase().includes(term) ||
+        item.description.toLowerCase().includes(term);
+      const matchesCategory = this.selectedCategory === 'All' || item.category === this.selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
   }
 
   highlightMatch(text, term) {
@@ -89,6 +93,17 @@ class ItemGrid extends LitElement {
     const idx = text.toLowerCase().indexOf(term.toLowerCase());
     if (idx === -1) return html`${text}`;
     return html`${text.slice(0, idx)}<strong>${text.slice(idx, idx + term.length)}</strong>${text.slice(idx + term.length)}`;
+  }
+
+  filterByCategory(category) {
+    this.selectedCategory = category;
+    this.filteredItems = this.items.filter(item => {
+      const matchesSearch = !this.searchTerm ||
+        item.name.toLowerCase().includes(this.searchTerm) ||
+        item.description.toLowerCase().includes(this.searchTerm);
+      const matchesCategory = category === 'All' || item.category === category;
+      return matchesSearch && matchesCategory;
+    });
   }
 
   // MPA Fix: navigate to the item page instead of dispatching a custom event
@@ -110,6 +125,18 @@ class ItemGrid extends LitElement {
           @input=${this.handleSearch}
         />
 
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">
+          ${['All','Comics','Coins','Cards','Art','Toys','Other'].map(cat => html`
+            <button @click=${() => this.filterByCategory(cat)}
+              style="padding:6px 14px;border-radius:9999px;border:none;cursor:pointer;font-size:0.875rem;
+                background:${this.selectedCategory === cat ? '#3b82f6' : '#f3f4f6'};
+                color:${this.selectedCategory === cat ? 'white' : '#374151'};
+                font-weight:${this.selectedCategory === cat ? '600' : '400'}">
+              ${cat}
+            </button>
+          `)}
+        </div>
+
         ${this.filteredItems.length === 0 ? html`
           <div style="text-align:center;padding:4rem;color:#6b7280">
             <div style="font-size:3rem">🔍</div>
@@ -130,6 +157,17 @@ class ItemGrid extends LitElement {
                     <p class="text-sm text-orange-500">Highest offer: KES ${item.highestOffer.toLocaleString()}</p>
                   ` : ''}
                   <p class="text-sm text-gray-500 mt-1">${item.sellerName}</p>
+
+                  ${item.condition ? html`
+                    <span style="font-size:0.7rem;background:#ede9fe;color:#5b21b6;padding:2px 6px;border-radius:9999px;margin-right:4px">
+                      ${item.condition}
+                    </span>
+                  ` : ''}
+                  ${item.category && item.category !== 'Other' ? html`
+                    <span style="font-size:0.7rem;background:#e0f2fe;color:#0369a1;padding:2px 6px;border-radius:9999px">
+                      ${item.category}
+                    </span>
+                  ` : ''}
                   ${item.paymentStatus === 'paid' ? html`
                     <span style="font-size:0.75rem;background:#d1fae5;color:#065f46;padding:2px 7px;border-radius:9999px">
                       🟢 Payment Confirmed
