@@ -324,8 +324,6 @@ curio-cove-marketplace/
 
 - Implement JWT with HTTP-only cookies
 
-- Add image upload functionality
-
 - Convert to TypeScript (bonus requirement)
 
 - Add unit tests

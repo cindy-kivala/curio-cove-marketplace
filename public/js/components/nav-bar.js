@@ -137,7 +137,7 @@ class NavBar extends LitElement {
                                 ` : ''}
                             </a>
                             <span class="username">${this.currentUser.name}</span>
-                            <button class="logout-btn" @click=${this.logout}>Logout</button>
+                            <button class="logout-btn" @click=${this.logout} aria-label="Sign out">Sign out</button>
                         ` : html`
                             <a @click=${() => this.goTo('/login')}>Login</a>
                         `}
