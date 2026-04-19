@@ -130,6 +130,15 @@ For an assessment prototype, simplicity and speed outweigh scalability concerns.
 data/*.json
 !data/.gitkeep
 
+**Production note:** On Render, the filesystem is ephemeral between deploys.
+JSON data files are stored on a persistent Render Disk mounted at `/data`.
+Path resolution switches based on `NODE_ENV`:
+```js
+const itemsPath = process.env.NODE_ENV === 'production'
+  ? '/data/items.json'
+  : join(__dirname, '../data/items.json');
+```
+
 
 ---
 
@@ -195,32 +204,92 @@ formatTime(timestamp) {
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
+## ADR 007: Per-listing Chat over Private Messaging
+
+### Decision
+Chat is scoped per item listing, visible to all participants, 
+modelled after Facebook Marketplace and OLX rather than 
+private direct messaging.
+
+### Rationale
+The assessment specifies messaging "for each item" which maps 
+directly to a per-listing thread. Private per-user threads would 
+require additional backend endpoints, inbox UI, and conversation 
+management outside the assessment scope.
+
+## ADR 008: Dashboard-level Offer Accept/Reject over Chat-only
+
+### Context
+Initially, offer accept/reject was only possible inside the chat panel per item.
+Sellers needed a way to manage all offers from a single dashboard view.
+
+### Decision
+**Expose Accept/Reject controls directly on each listing card in the seller dashboard.**
+
+When a seller accepts an offer, all other pending offers on that item are automatically
+rejected, and the item status is set to `sold` immediately — bypassing the checkout flow.
+
+### Trade-offs
+
+| Pros | Cons |
+|------|------|
+| Single place to manage all offers | Duplicates logic from chat panel |
+| Faster workflow for active sellers | Two code paths to maintain |
+| Prevents double-acceptance | |
+
+## ADR 009: Soft Sold Status over Hard Delete
+
+### Context
+Originally, confirming a sale deleted the item from `items.json` entirely.
+This caused sold items to vanish from the seller dashboard and prevented
+buyers from seeing their purchase history.
+
+### Decision
+**Mark items as `status: 'sold'` instead of deleting them.**
+
+Items with `status: 'sold'` are excluded from the public marketplace
+(`GET /api/items` filters for `status === 'active'`) but remain accessible
+via `GET /api/items/all?sellerId=` for the seller dashboard and via
+`GET /api/users/:id/purchases` for buyer history.
+
+### Trade-offs
+
+| Pros | Cons |
+|------|------|
+| Preserves purchase history | JSON file grows over time |
+| Seller can see sold items | Slightly more complex filtering |
+| Enables seller ratings post-sale | |
+
 ## Current Project Status
-# Completed Features
-- User login/registration (with password hashing)
 
-- Browse items with search
-
-- View single item details
-
-- Make offers on items
-
-- Real-time chat (HTTP polling every 2 seconds)
-
-- Checkout (buyer confirms payment)
-
-- Seller confirms sale (removes item)
-
-# Pending Features
-- Seller dashboard (manage listings)
-
-- Message inbox (unread notifications)
+### Completed Features
+- User login/registration with password hashing and localStorage persistence
+- Browse items with live search and keyword highlighting
+- Category filter pills on marketplace grid
+- Item condition and category badges on listings
+- View single item details with offer history
+- Make offers on items with 24-hour auto-expiry
+- Real-time chat with HTTP polling every 2 seconds
+- Typing indicator in chat
+- Unread message badge on nav bar with 10-second polling
+- Seller dashboard — create, edit, delete listings
+- Accept/reject offers directly from dashboard
+- Buyer checkout (confirms payment)
+- Seller confirms sale — item marked as sold
+- Sold item protection — no offers or purchases on sold items
+- Buyer purchases collection tab
+- Seller ratings (1–5 stars) from buyers after purchase
+- Image URL preview in create listing form
+- Empty state improvements across grid, dashboard, and chat
+- Mobile responsive layout on all views
+- SEO-optimised page titles and meta tags per route
 
 Project Structure
 text
 curio-cove-marketplace/
 ├── index.js                 # Express server with EJS
 ├── package.json
+├── tailwind.config.js
 ├── .gitignore
 ├── ADR.md
 ├── README.md
@@ -231,19 +300,27 @@ curio-cove-marketplace/
 │   └── messages.json
 ├── routes/
 │   ├── items.js           # CRUD, offers, checkout
-│   ├── users.js           # Auth
-│   └── messages.js        # Chat, polling
+│   ├── messages.js        # Auth
+│   └── users.js           # Chat, polling
 ├── views/
-│   └── layout.ejs
+│   └── dashboards.ejs
+│   ├── item.ejs   
+│   ├── layout.ejs         
+│   └── login.ejs 
+├── src/types
+│   └── uuid.d.ts
 └── public/
     ├── css/
+    │   └── input.css
     │   └── styles.css
+    |
     └── js/components/
-        ├── app-shell.js
-        ├── login-form.js
-        ├── item-grid.js
-        ├── item-detail.js
-        └── chat-panel.js
+        |    ├── app-shell.js
+        |    ├── login-form.js
+        |    ├── item-grid.js
+        |    ├── item-detail.js
+        |    └── chat-panel.js
+        └──  lit-bundle.min.js
 
 ### Future Improvements
 - Replace HTTP polling with WebSockets
@@ -260,16 +337,4 @@ curio-cove-marketplace/
 
 - Implement proper Tailwind build process with PurgeCSS
 
-## ADR 007: Per-listing Chat over Private Messaging
-
-### Decision
-Chat is scoped per item listing, visible to all participants, 
-modelled after Facebook Marketplace and OLX rather than 
-private direct messaging.
-
-### Rationale
-The assessment specifies messaging "for each item" which maps 
-directly to a per-listing thread. Private per-user threads would 
-require additional backend endpoints, inbox UI, and conversation 
-management outside the assessment scope.
 
