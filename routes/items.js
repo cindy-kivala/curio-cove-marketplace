@@ -60,6 +60,12 @@ router.get('/all', (req, res) => {
       items = items.filter(i => i.sellerId === sellerId);
     }
     items.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const usersPath = join(__dirname, '../data/users.json');
+    const users = JSON.parse(readFileSync(usersPath));
+    items = items.map(item => {
+      const seller = users.find(u => u.id === item.sellerId);
+      return { ...item, sellerAvgRating: seller?.avgRating || null };
+    });
     res.json(items);
   } catch (error) {
     console.error('Error fetching all items:', error);

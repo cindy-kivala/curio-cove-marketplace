@@ -156,7 +156,11 @@ class ItemGrid extends LitElement {
                   ${item.highestOffer ? html`
                     <p class="text-sm text-orange-500">Highest offer: KES ${item.highestOffer.toLocaleString()}</p>
                   ` : ''}
-                  <p class="text-sm text-gray-500 mt-1">${item.sellerName}</p>
+                  
+                  <p class="text-sm text-gray-500 mt-1">
+                    ${item.sellerName}
+                    ${item.sellerAvgRating ? html`<span style="color:#f59e0b;margin-left:4px">⭐ ${item.sellerAvgRating}</span>` : ''}
+                  </p>
 
                   ${item.condition ? html`
                     <span style="font-size:0.7rem;background:#ede9fe;color:#5b21b6;padding:2px 6px;border-radius:9999px;margin-right:4px">

@@ -15,7 +15,9 @@ class SellerDashboard extends LitElement {
     previewImage: { type: String },
     activeTab: { type: String },
     purchases: { type: Array },
-    purchasesLoading: { type: Boolean }
+    purchasesLoading: { type: Boolean },
+    ratingItemId: { type: String },
+    pendingRating: { type: Object }
   };
 
   static styles = css`
@@ -159,6 +161,8 @@ class SellerDashboard extends LitElement {
     this.activeTab = 'listings';
     this.purchases = [];
     this.purchasesLoading = false;
+    this.ratingItemId = null;
+    this.pendingRating = 0;
   }
 
   connectedCallback() {
@@ -374,6 +378,32 @@ class SellerDashboard extends LitElement {
     }
   }
 
+  async submitRating(item) {
+    if (!this.pendingRating) return;
+    try {
+      const res = await fetch(`${this.apiBase}/users/${item.sellerId}/rate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          rating: this.pendingRating,
+          buyerId: this.currentUser.id,
+          itemId: item.id
+        })
+      });
+      if (res.ok) {
+        this.success = `Rated ${this.pendingRating}⭐ — thank you!`;
+        this.ratingItemId = null;
+        this.pendingRating = 0;
+        await this.loadPurchases();
+      } else {
+        const d = await res.json();
+        this.error = d.error || 'Failed to submit rating';
+      }
+    } catch {
+      this.error = 'Network error. Please try again.';
+    }
+  }
+
   handleInput(e, field) {
     this.newItem = { ...this.newItem, [field]: e.target.value };
   }
@@ -435,7 +465,31 @@ class SellerDashboard extends LitElement {
                   <span class="badge" style="background:#d1fae5;color:#065f46;margin-top:4px;display:inline-block">
                     Purchased
                   </span>
-                </div>
+                  ${this.ratingItemId === item.id ? html`
+                    <div style="margin-top:8px;display:flex;align-items:center;gap:6px">
+                      ${[1,2,3,4,5].map(star => html`
+                        <span @click=${() => this.pendingRating = star}
+                          style="font-size:1.5rem;cursor:pointer;opacity:${this.pendingRating >= star ? '1' : '0.3'}">
+                          ⭐
+                        </span>
+                      `)}
+                      <button @click=${() => this.submitRating(item)}
+                        style="background:#3b82f6;color:white;border:none;padding:4px 10px;border-radius:4px;cursor:pointer">
+                        Submit
+                      </button>
+                      <button @click=${() => this.ratingItemId = null}
+                        style="background:#e5e7eb;color:#374151;border:none;padding:4px 10px;border-radius:4px;cursor:pointer">
+                        Cancel
+                      </button>
+                    </div>
+                  ` : html`
+                    <button @click=${() => this.ratingItemId = item.id}
+                      style="margin-top:6px;background:none;border:1px solid #d1d5db;padding:4px 10px;
+                        border-radius:4px;cursor:pointer;font-size:0.8rem;color:#374151">
+                      Rate Seller
+                    </button>
+                  `}
+                 </div>
               </div>
             `)}
           `}

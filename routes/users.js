@@ -184,4 +184,29 @@ router.get('/:id/purchases', (req, res) => {
   }
 });
 
+router.post('/:id/rate', (req, res) => {
+  try {
+    const { rating, buyerId, itemId } = req.body;
+    if (!rating || rating < 1 || rating > 5) {
+      return res.status(400).json({ error: 'Rating must be between 1 and 5' });
+    }
+    const users = readUsers();
+    const index = users.findIndex(u => u.id === req.params.id);
+    if (index === -1) return res.status(404).json({ error: 'User not found' });
+
+    if (!users[index].ratings) users[index].ratings = [];
+    // Prevent duplicate rating for same item
+    const alreadyRated = users[index].ratings.find(r => r.itemId === itemId && r.buyerId === buyerId);
+    if (alreadyRated) return res.status(409).json({ error: 'Already rated' });
+
+    users[index].ratings.push({ rating, buyerId, itemId, createdAt: new Date().toISOString() });
+    const avg = users[index].ratings.reduce((sum, r) => sum + r.rating, 0) / users[index].ratings.length;
+    users[index].avgRating = Math.round(avg * 10) / 10;
+    writeUsers(users);
+    res.json({ success: true, avgRating: users[index].avgRating });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to submit rating' });
+  }
+});
+
 export default router;
