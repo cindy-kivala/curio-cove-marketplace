@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, copyFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import itemsRouter from './routes/items.js';
@@ -207,8 +207,6 @@ app.get('/dashboard', (req, res) => {
     });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running`);
-  console.log(`Data directory: ${dataDir}`);
-  console.log(`Health check`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
 });
