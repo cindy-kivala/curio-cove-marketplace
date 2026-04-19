@@ -126,19 +126,14 @@ The provided backend used JSON files for storage. I needed to decide whether to 
 ### Rationale
 For an assessment prototype, simplicity and speed outweigh scalability concerns. JSON files work perfectly for the expected scale.
 
-**Important:** JSON files are excluded from git via `.gitignore`:
-data/*.json
-!data/.gitkeep
+**Important:** JSON files are not excluded from git because Railway needs json data to seed files.
 
-**Production note:** On Render, the filesystem is ephemeral between deploys.
-JSON data files are stored on a persistent Render Disk mounted at `/data`.
-Path resolution switches based on `NODE_ENV`:
-```js
-const itemsPath = process.env.NODE_ENV === 'production'
-  ? '/data/items.json'
-  : join(__dirname, '../data/items.json');
-```
-
+**Deployment note:** The app is deployed on Railway where the filesystem 
+persists between deploys, so JSON data files in `/data` survive redeploys 
+without additional configuration. The same file paths work in both local 
+development and production. In a production-grade system this would be 
+replaced with a persistent database such as PostgreSQL to support 
+concurrent writes and horizontal scaling.
 
 ---
 
