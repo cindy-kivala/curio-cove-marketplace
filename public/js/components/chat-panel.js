@@ -293,6 +293,8 @@ class ChatPanel extends LitElement {
                         style="background:#dc2626;color:white;border:none;padding:4px 10px;border-radius:4px;cursor:pointer">
                         Reject
                       </button>
+                    ` : msg.status === 'expired' ? html`
+                      <span style="color:#9ca3af;font-size:0.8rem">⌛ Offer expired</span>
                     ` : html`<span style="color:#92400e;font-size:0.8rem">⏳ Pending seller response</span>`}
                   </div>
                 ` : ''}

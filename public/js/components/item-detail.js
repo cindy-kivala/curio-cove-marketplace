@@ -339,7 +339,7 @@ class ItemDetail extends LitElement {
                     <span style="font-weight:600;color:${
                       o.status === 'accepted' ? '#16a34a' :
                       o.status === 'rejected' ? '#dc2626' : '#d97706'
-                    }">${o.status === 'accepted' ? 'Accepted' : o.status === 'rejected' ? 'Rejected' : 'Pending'}</span>
+                    }">${o.status === 'accepted' ? 'Accepted' : o.status === 'rejected' ? 'Rejected' : o.status === 'expired' ? 'Expired' : 'Pending'}</span>
                   </div>
                 `)}
               </div>

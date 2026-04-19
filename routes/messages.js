@@ -33,6 +33,17 @@ router.get('/item/:itemId/poll/:timestamp', (req, res) => {
       return res.status(400).json({ error: 'Invalid timestamp format' });
     }
     
+    // Auto-expire offers older than 24 hours
+    const now = new Date();
+    let changed = false;
+    messages.forEach(m => {
+      if (m.type === 'offer' && m.status === 'pending') {
+        const age = (now - new Date(m.timestamp)) / 1000 / 3600;
+        if (age > 24) { m.status = 'expired'; changed = true; }
+      }
+    });
+    if (changed) writeMessages(messages);
+
     const newMessages = messages.filter(m => 
       m.itemId === itemId && 
       new Date(m.timestamp) > since
